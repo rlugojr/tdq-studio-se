@@ -17,7 +17,7 @@ import java.util.List;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.KeyedPoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericKeyedObjectPool;
-import org.talend.datascience.common.inference.Analyzer;
+
 /**
  * 
  * @author zhao
@@ -30,6 +30,8 @@ public class ConcurrentAnalyzer<T> implements Analyzer<T> {
 
     private final KeyedObjectPool<Thread, Analyzer<T>> pool;
 
+    private final int maxPoolSize;
+
     private ConcurrentAnalyzer(int maxSize, AnalyzerSupplier<Analyzer<T>> supplier) {
         GenericKeyedObjectPool.Config config = new GenericKeyedObjectPool.Config();
         config.maxTotal = maxSize;
@@ -37,6 +39,7 @@ public class ConcurrentAnalyzer<T> implements Analyzer<T> {
         config.maxIdle = maxSize;
         config.maxWait = 3000;
         this.pool = new GenericKeyedObjectPool<>(new Factory<>(supplier), config);
+        this.maxPoolSize = maxSize;
     }
 
     public static <T> Analyzer<T> make(AnalyzerSupplier<Analyzer<T>> supplier, int maxSize) {
@@ -47,7 +50,7 @@ public class ConcurrentAnalyzer<T> implements Analyzer<T> {
         try {
             return pool.borrowObject(Thread.currentThread());
         } catch (Exception e) {
-            throw new RuntimeException("Unable to get analyzer for current thread.", e);
+            throw new RuntimeException(getExceptionMsg(), e);
         }
     }
 
@@ -59,7 +62,7 @@ public class ConcurrentAnalyzer<T> implements Analyzer<T> {
     }
 
     @Override
-    public  boolean analyze(String... record) {
+    public boolean analyze(String... record) {
         Analyzer<T> analyzer = get();
         boolean result = analyzer.analyze(record);
         returnObject(analyzer);
@@ -70,8 +73,13 @@ public class ConcurrentAnalyzer<T> implements Analyzer<T> {
         try {
             pool.returnObject(Thread.currentThread(), analyzer);
         } catch (Exception e) {
-            throw new RuntimeException("Unable to return analyzer for current thread.", e);
+            throw new RuntimeException(getExceptionMsg(), e);
         }
+    }
+
+    private String getExceptionMsg() {
+        return "Unable to get analyzer for current thread." + Thread.currentThread().getId() + ". Max size of pool is set to " //$NON-NLS-1$//$NON-NLS-2$
+                + this.maxPoolSize;
     }
 
     @Override
@@ -84,7 +92,7 @@ public class ConcurrentAnalyzer<T> implements Analyzer<T> {
     @Override
     public List<T> getResult() {
         Analyzer<T> analyzer = get();
-        List<T> result =  analyzer.getResult();
+        List<T> result = analyzer.getResult();
         returnObject(analyzer);
         return result;
     }
@@ -92,7 +100,7 @@ public class ConcurrentAnalyzer<T> implements Analyzer<T> {
     @Override
     public Analyzer<T> merge(Analyzer<T> another) {
         Analyzer<T> analyzer = get();
-        Analyzer<T> result =  analyzer.merge(another);
+        Analyzer<T> result = analyzer.merge(another);
         returnObject(analyzer);
         return result;
     }
