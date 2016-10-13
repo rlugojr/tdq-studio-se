@@ -17,20 +17,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-
-import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.talend.commons.emf.EMFUtil;
-import org.talend.commons.emf.EmfFileResourceUtil;
 import org.talend.core.model.metadata.builder.database.dburl.SupportDBUrlType;
 import org.talend.core.model.properties.Property;
 import org.talend.cwm.relational.RelationalFactory;
@@ -40,7 +35,6 @@ import org.talend.dataquality.analysis.Analysis;
 import org.talend.dataquality.indicators.Indicator;
 import org.talend.dataquality.indicators.PatternMatchingIndicator;
 import org.talend.dataquality.properties.TDQAnalysisItem;
-import org.talend.dq.CWMPlugin;
 import org.talend.dq.dbms.DbmsLanguage;
 import org.talend.dq.dbms.DbmsLanguageFactory;
 import org.talend.utils.sugars.ReturnCode;
@@ -58,12 +52,14 @@ public class AnalysisExecutorHelperTest {
      */
     @Before
     public void setUp() throws Exception {
+        // initProjectStructure();
+        // prepareAnalysis();
     }
 
     /**
      * DOC yyin Comment method "tearDown".
      * 
-     * @throws java.lang.Exception
+     * @throws java.lang.Exceptionge
      */
     @After
     public void tearDown() throws Exception {
@@ -201,8 +197,8 @@ public class AnalysisExecutorHelperTest {
     @Test
     public void testCheckPatternDependencyFiles() {
         // Load analysis item/property model from test file.
-        String anaPropertyFile = "data/builtin/pattern_with_dep/TDQ_Data_Profiling/Analyses/patternMatchAna_0.1.properties"; //$NON-NLS-1$
-        Resource anaPropertyResource = getResource(anaPropertyFile);
+        String anaPropertyFile = "/data/builtin/pattern_with_dep/TDQ_Data_Profiling/Analyses/patternMatchAna_0.1.properties"; //$NON-NLS-1$
+        Resource anaPropertyResource = getPlatformResource(anaPropertyFile);
         Analysis ana = null;
         Property anaProperty = null;
         while (anaPropertyResource.getAllContents().hasNext()) {
@@ -231,26 +227,12 @@ public class AnalysisExecutorHelperTest {
         EMFUtil.saveResource(ana.eResource());
     }
 
-    /**
-     * DOC yyin Comment method "getResource".
-     * 
-     * @param anaPropertyFile
-     * @return
-     * @throws URISyntaxException
-     * @throws IOException
-     */
-    private Resource getResource(String anaPropertyFile) {
-        URL fileUrl = CWMPlugin.getDefault().getBundle().getResource(anaPropertyFile);
-        File propertyFile;
+    private Resource getPlatformResource(String anaPropertyFile) {
         try {
-            propertyFile = new File(FileLocator.toFileURL(fileUrl).toURI().getPath().toString());
-            return EmfFileResourceUtil.getInstance().getFileResource(propertyFile.getAbsolutePath());
-        } catch (URISyntaxException e) {
-            fail("Can not find the file: " + anaPropertyFile);
-            e.printStackTrace();
-        } catch (IOException e) {
-            fail("Can not find the file: " + anaPropertyFile);
-            e.printStackTrace();
+            EMFUtil util = new EMFUtil();
+            ResourceSet resourceSet = util.getResourceSet();
+            URI uri = URI.createPlatformPluginURI("/org.talend.cwm.management.test" + anaPropertyFile, true);
+            return resourceSet.getResource(uri, true);
         } catch (NullPointerException e) {
             fail("Can not find the file: " + anaPropertyFile);
             e.printStackTrace();
@@ -261,8 +243,8 @@ public class AnalysisExecutorHelperTest {
     @Test
     public void testCheckPatternWithOutDependencyFiles() {
         // Load analysis item/property model from test file.
-        String anaPropertyFile = "data/builtin/pattern_without_dep/TDQ_Data_Profiling/Analyses/patternMatchAna_0.1.properties"; //$NON-NLS-1$
-        Resource anaPropertyResource = getResource(anaPropertyFile);
+        String anaPropertyFile = "/data/builtin/pattern_without_dep/TDQ_Data_Profiling/Analyses/patternMatchAna_0.1.properties"; //$NON-NLS-1$
+        Resource anaPropertyResource = getPlatformResource(anaPropertyFile);
         Analysis ana = null;
         Property anaProperty = null;
         while (anaPropertyResource.getAllContents().hasNext()) {
@@ -292,8 +274,8 @@ public class AnalysisExecutorHelperTest {
     @Test
     public void testCheckPatternWithOutDependencyFilesAndBuiltIn() {
         // Load analysis item/property model from test file.
-        String anaPropertyFile = "data/builtin/pattern_without_dep_builtin/TDQ_Data_Profiling/Analyses/patternMatchAna_0.1.properties"; //$NON-NLS-1$
-        Resource anaPropertyResource = getResource(anaPropertyFile);
+        String anaPropertyFile = "/data/builtin/pattern_without_dep_builtin/TDQ_Data_Profiling/Analyses/patternMatchAna_0.1.properties"; //$NON-NLS-1$
+        Resource anaPropertyResource = getPlatformResource(anaPropertyFile);
         Analysis ana = null;
         Property anaProperty = null;
         while (anaPropertyResource.getAllContents().hasNext()) {
@@ -323,8 +305,8 @@ public class AnalysisExecutorHelperTest {
     @Test
     public void testCheckIndicatorWithDependencyFiles() {
         // Load analysis item/property model from test file.
-        String anaPropertyFile = "data/builtin/indicator_with_dep/TDQ_Data_Profiling/Analyses/patternMatchAna_0.1.properties"; //$NON-NLS-1$
-        Resource anaPropertyResource = getResource(anaPropertyFile);
+        String anaPropertyFile = "/data/builtin/indicator_with_dep/TDQ_Data_Profiling/Analyses/patternMatchAna_0.1.properties"; //$NON-NLS-1$
+        Resource anaPropertyResource = getPlatformResource(anaPropertyFile);
         Analysis ana = null;
         Property anaProperty = null;
         while (anaPropertyResource.getAllContents().hasNext()) {
@@ -368,8 +350,8 @@ public class AnalysisExecutorHelperTest {
     @Test
     public void testCheckIndicatorWithOutDependencyFilesAndBuiltIn() {
         // Load analysis item/property model from test file.
-        String anaPropertyFile = "data/builtin/indicator_without_dep_builtin/TDQ_Data_Profiling/Analyses/patternMatchAna_0.1.properties"; //$NON-NLS-1$
-        Resource anaPropertyResource = getResource(anaPropertyFile);
+        String anaPropertyFile = "/data/builtin/indicator_without_dep_builtin/TDQ_Data_Profiling/Analyses/patternMatchAna_0.1.properties"; //$NON-NLS-1$
+        Resource anaPropertyResource = getPlatformResource(anaPropertyFile);
         Analysis ana = null;
         Property anaProperty = null;
         while (anaPropertyResource.getAllContents().hasNext()) {
@@ -403,8 +385,8 @@ public class AnalysisExecutorHelperTest {
     @Test
     public void testCheckIndicatorWithOutDependencyFiles() {
         // Load analysis item/property model from test file.
-        String anaPropertyFile = "data/builtin/indicator_without_dep/TDQ_Data_Profiling/Analyses/patternMatchAna_0.1.properties"; //$NON-NLS-1$
-        Resource anaPropertyResource = getResource(anaPropertyFile);
+        String anaPropertyFile = "/data/builtin/indicator_without_dep/TDQ_Data_Profiling/Analyses/patternMatchAna_0.1.properties"; //$NON-NLS-1$
+        Resource anaPropertyResource = getPlatformResource(anaPropertyFile);
         Analysis ana = null;
         Property anaProperty = null;
         while (anaPropertyResource.getAllContents().hasNext()) {
@@ -448,8 +430,8 @@ public class AnalysisExecutorHelperTest {
     @Test
     public void testCheckRuleWithDependencyFiles() {
         // Load analysis item/property model from test file.
-        String anaPropertyFile = "data/builtin/rule_with_dep/TDQ_Data_Profiling/Analyses/matchRuleAna_0.1.properties"; //$NON-NLS-1$
-        Resource anaPropertyResource = getResource(anaPropertyFile);
+        String anaPropertyFile = "/data/builtin/rule_with_dep/TDQ_Data_Profiling/Analyses/matchRuleAna_0.1.properties"; //$NON-NLS-1$
+        Resource anaPropertyResource = getPlatformResource(anaPropertyFile);
         Analysis ana = null;
         Property anaProperty = null;
         while (anaPropertyResource.getAllContents().hasNext()) {
