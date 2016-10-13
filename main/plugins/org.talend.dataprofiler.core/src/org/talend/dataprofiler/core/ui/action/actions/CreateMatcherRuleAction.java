@@ -61,6 +61,10 @@ public class CreateMatcherRuleAction extends Action implements ICheatSheetAction
      */
     @Override
     public void run() {
+        doRun();
+    }
+
+    public boolean doRun() {
         DQMatchRuleParameter parameter = new DQMatchRuleParameter();
         FolderProvider folderProvider = new FolderProvider();
         folderProvider.setFolderResource(folder);
@@ -71,7 +75,9 @@ public class CreateMatcherRuleAction extends Action implements ICheatSheetAction
         WizardDialog dialog = new WizardDialog(Display.getDefault().getActiveShell(), matchWizard);
         if (WizardDialog.OK == dialog.open()) {
             ProxyRepositoryManager.getInstance().save();
+            return true;
         }
+        return false;
     }
 
     /**
