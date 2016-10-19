@@ -53,12 +53,24 @@ public class FrequencyTypeStateUtil {
     }
 
     public static boolean isWithRowCountIndicator(Indicator indicator) {
+        return getRowCountIndicator(indicator) != null;
+    }
+
+    public static RowCountIndicator getRowCountIndicator(List<IndicatorUnit> units) {
+        if (!units.isEmpty()) {
+            Indicator indicator = units.get(0).getIndicator();
+            return getRowCountIndicator(indicator);
+        }
+        return null;
+    }
+
+    public static RowCountIndicator getRowCountIndicator(Indicator indicator) {
         ModelElement currentAnalyzedElement = indicator.getAnalyzedElement();
         InternalEObject eIndicator = (InternalEObject) indicator;
         AnalysisResult result = (AnalysisResult) eIndicator.eContainer();
         // MOD msjian TDQ-5960: fix a NPE
         if (result == null) {
-            return false;
+            return null;
         }
         EList<Indicator> indicators = result.getIndicators();
         if (indicators != null) {
@@ -66,19 +78,19 @@ public class FrequencyTypeStateUtil {
                 ModelElement analyzedElement = indi.getAnalyzedElement();
                 if (analyzedElement == currentAnalyzedElement) {
                     if (indi instanceof RowCountIndicator) {
-                        return true;
+                        return (RowCountIndicator) indi;
                     } else if (indi instanceof CountsIndicator) {
                         CountsIndicator cindi = (CountsIndicator) indi;
-                        return cindi.getRowCountIndicator() != null;
+                        return cindi.getRowCountIndicator();
                     }
                 }
             }
         }
-        return false;
+        return null;
     }
 
     public static ChartDataEntity createChartEntity(Indicator indicator, FrequencyExt freqExt, String keyLabel,
-            boolean isWithRowCountIndicator) {
+            boolean isWithRowCountIndicator, Long rowCount) {
         ChartDataEntity entity = new ChartDataEntity();
         entity.setIndicator(indicator);
         // MOD mzhao feature:6307 display soundex distinct count and real count.
@@ -93,6 +105,7 @@ public class FrequencyTypeStateUtil {
             entity.setPercent(freqExt.getFrequency());
         } else {
             Double percent = isWithRowCountIndicator ? freqExt.getFrequency() : Double.NaN;
+            percent = Double.isNaN(percent) ? (rowCount == 0l ? Double.NaN : (double) freqExt.getValue() / rowCount) : percent;
             entity.setPercent(percent);
         }
         return entity;

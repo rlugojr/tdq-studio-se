@@ -48,6 +48,8 @@ public abstract class FrequencyTypeStates extends AbstractChartTypeStates {
     public ICustomerDataset getCustomerDataset() {
         CustomerDefaultCategoryDataset customerdataset = new CustomerDefaultCategoryDataset();
         boolean withRowCountIndicator = isWithRowCountIndicator();
+        Long rowCount = FrequencyTypeStateUtil.getRowCountIndicator(units) == null ? 0l : FrequencyTypeStateUtil
+                .getRowCountIndicator(units).getCount();
 
         for (IndicatorUnit unit : units) {
             if (unit.isExcuted() && !this.isSupportDynamicChart) {
@@ -64,13 +66,13 @@ public abstract class FrequencyTypeStates extends AbstractChartTypeStates {
                     setValueToDataset(customerdataset, freqExt, keyLabel);
 
                     ChartDataEntity entity = FrequencyTypeStateUtil.createChartEntity(unit.getIndicator(), freqExt, keyLabel,
-                            withRowCountIndicator);
+                            withRowCountIndicator, rowCount);
 
                     customerdataset.addDataEntity(entity);
                 }
             } else {
                 ChartDataEntity entity = FrequencyTypeStateUtil.createChartEntity(unit.getIndicator(), null,
-                        SpecialValueDisplay.EMPTY_FIELD, false);
+                        SpecialValueDisplay.EMPTY_FIELD, false, rowCount);
                 FrequencyExt fre = new FrequencyExt();
                 fre.setValue(0l);
                 fre.setFrequency(0d);
@@ -101,8 +103,6 @@ public abstract class FrequencyTypeStates extends AbstractChartTypeStates {
         return FrequencyTypeStateUtil.isWithRowCountIndicator(units);
     }
 
-
-    
     /**
      * Sets the isSupportDynamicChart.
      * 
@@ -115,6 +115,5 @@ public abstract class FrequencyTypeStates extends AbstractChartTypeStates {
     protected abstract void sortIndicator(FrequencyExt[] frequencyExt);
 
     protected abstract String getTitle();
-
 
 }

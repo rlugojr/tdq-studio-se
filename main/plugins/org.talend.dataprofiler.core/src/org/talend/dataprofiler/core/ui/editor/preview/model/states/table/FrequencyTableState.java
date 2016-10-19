@@ -51,6 +51,8 @@ public abstract class FrequencyTableState extends AbstractTableTypeStates {
     public ChartDataEntity[] getDataEntity() {
         List<ChartDataEntity> dataEnities = new ArrayList<ChartDataEntity>();
         boolean withRowCountIndicator = isWithRowCountIndicator();
+        Long rowCount = FrequencyTypeStateUtil.getRowCountIndicator(units) == null ? 0l : FrequencyTypeStateUtil
+                .getRowCountIndicator(units).getCount();
 
         for (IndicatorUnit unit : units) {
             if (unit.isExcuted()) {
@@ -64,7 +66,7 @@ public abstract class FrequencyTableState extends AbstractTableTypeStates {
                     FrequencyExt freqExt = frequencyExt[i];
                     String keyLabel = FrequencyTypeStateUtil.getKeyLabel(freqExt, 30);
                     dataEnities.add(FrequencyTypeStateUtil.createChartEntity(unit.getIndicator(), freqExt, keyLabel,
-                            withRowCountIndicator));
+                            withRowCountIndicator, rowCount));
                 }
             } else {
                 // TDQ-11422: before analysis run turn to Analysis Results page, there should show nothing data

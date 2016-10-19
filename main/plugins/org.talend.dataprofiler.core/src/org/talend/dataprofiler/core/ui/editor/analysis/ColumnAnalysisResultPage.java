@@ -295,17 +295,19 @@ public class ColumnAnalysisResultPage extends AbstractAnalysisResultPage impleme
                 // actually
             } else {
                 int index = 0;
-                for (Indicator oneIndicator : oneCategoryIndicatorModel.getIndicatorList()) {
-                    DynamicChartEventReceiver eReceiver = AnalysisUtils.createDynamicChartEventReceiver(
-                            oneCategoryIndicatorModel, index++, oneIndicator);
-                    eReceiver.setChartComposite(chartComposite);
-                    eReceiver.setParentChartComposite((Composite) oneCategoryIndicatorModel.getBawParentChartComp());
-                    eReceiver.refreshChart();
-                    eReceiver.setTableViewer(tableViewer);
+                if (oneCategoryIndicatorModel != null) {
+                    for (Indicator oneIndicator : oneCategoryIndicatorModel.getIndicatorList()) {
+                        DynamicChartEventReceiver eReceiver = AnalysisUtils.createDynamicChartEventReceiver(
+                                oneCategoryIndicatorModel, index++, oneIndicator);
+                        eReceiver.setChartComposite(chartComposite);
+                        eReceiver.setParentChartComposite((Composite) oneCategoryIndicatorModel.getBawParentChartComp());
+                        eReceiver.refreshChart();
+                        eReceiver.setTableViewer(tableViewer);
 
-                    // clear data
-                    eReceiver.clearValue();
-                    registerIndicatorEvent(oneIndicator, eReceiver);
+                        // clear data
+                        eReceiver.clearValue();
+                        registerIndicatorEvent(oneIndicator, eReceiver);
+                    }
                 }
             }
         }

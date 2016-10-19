@@ -98,6 +98,8 @@ public class FrequencyDynamicChartEventReceiver extends DynamicChartEventReceive
         FrequencyExt[] tempFreq = handleFrequency(frequencyExt);
         clearDataEntity(customerdataset);
         boolean withRowCountIndicator = FrequencyTypeStateUtil.isWithRowCountIndicator(indicator);
+        Long rowCount = FrequencyTypeStateUtil.getRowCountIndicator(indicator) == null ? 0l : FrequencyTypeStateUtil
+                .getRowCountIndicator(indicator).getCount();
         for (int i = 0; i < numOfShown; i++) {
             FrequencyExt freqExt = tempFreq[i];
             String keyLabel = String.valueOf(freqExt.getKey());
@@ -108,10 +110,8 @@ public class FrequencyDynamicChartEventReceiver extends DynamicChartEventReceive
                 keyLabel = SpecialValueDisplay.EMPTY_FIELD;
             }
 
-
-
-            ChartDataEntity entity = FrequencyTypeStateUtil
-                    .createChartEntity(indicator, freqExt, keyLabel, withRowCountIndicator);
+            ChartDataEntity entity = FrequencyTypeStateUtil.createChartEntity(indicator, freqExt, keyLabel,
+                    withRowCountIndicator, rowCount);
 
             if (customerdataset instanceof CustomerDefaultCategoryDataset) {
                 ((CustomerDefaultCategoryDataset) customerdataset).addDataEntity(entity);
