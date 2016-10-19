@@ -51,7 +51,8 @@ public class SimpleStatisticsState extends AbstractChartTypeStates {
             String value = CommonStateUtil.getUnitValue(unit.getValue(), StringFormatUtil.INT_NUMBER);
             String label = unit.getIndicatorName();
             customerdataset.addValue(Double.parseDouble(value), label, label);
-            ChartDataEntity entity = CommonStateUtil.createDataEntity(unit, value, label);
+            ChartDataEntity entity = CommonStateUtil.createDataEntity(unit, value, label,
+                    CommonStateUtil.getIndicatorUnitRowCount(units));
             customerdataset.addDataEntity(entity);
         }
         return customerdataset;

@@ -33,18 +33,11 @@ public abstract class AbstractChartTypeStatesTable implements IChartTypeStates {
     }
 
     public Object getDataset() {
-        if (getCustomerDataset() != null) {
-            return getCustomerDataset();
-        }
-        return null;
+        return getCustomerDataset();
     }
 
     public Object getXYDataset() {
-        if (getCustomerXYDataset() != null) {
-            return getCustomerXYDataset();
-        }
-
-        return null;
+        return getCustomerXYDataset();
     }
 
     public ICustomerDataset getCustomerXYDataset() {

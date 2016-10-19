@@ -84,15 +84,16 @@ public class WhereRuleStatisticsTableState extends AbstractRuleStatisticsTableSt
      * @return
      */
     public ChartDataEntity[] getDataEntityOfRowCount() {
-        TableIndicatorUnit rownCountUnit = WhereRuleStatisticsStateUtil.getRownCountUnit(tableunits);
+        TableIndicatorUnit rowCountUnit = CommonStateUtil.getRowCountTableIndicatorUnit(tableunits);
         List<ChartDataEntity> dataEnities = new ArrayList<ChartDataEntity>();
-        if (rownCountUnit != null) {
+        if (rowCountUnit != null) {
             // final Object unitValue = rownCountUnit.getValue();
             // unitValue != null ?Double.parseDouble(unitValue.toString()): Double.NaN;
 
-            String value = CommonStateUtil.getUnitValue(rownCountUnit.getValue());
-            String label = rownCountUnit.getIndicatorName();
-            ChartDataEntity createDataEntity = CommonStateUtil.createDataEntity(rownCountUnit, value, label);
+            String value = CommonStateUtil.getUnitValue(rowCountUnit.getValue());
+            String label = rowCountUnit.getIndicatorName();
+            ChartDataEntity createDataEntity = CommonStateUtil
+                    .createDataEntity(rowCountUnit, value, label, Long.parseLong(value));
             dataEnities.add(createDataEntity);
         }
         return dataEnities.toArray(new ChartDataEntity[dataEnities.size()]);
@@ -234,14 +235,6 @@ public class WhereRuleStatisticsTableState extends AbstractRuleStatisticsTableSt
             return result;
         }
 
-    }
-
-    public TableIndicatorUnit getRownCountUnit(List<TableIndicatorUnit> units1) {
-        return WhereRuleStatisticsStateUtil.getRownCountUnit(units1);
-    }
-
-    public List<TableIndicatorUnit> removeRowCountUnit(List<TableIndicatorUnit> units1) {
-        return WhereRuleStatisticsStateUtil.removeRowCountUnit(units1);
     }
 
 }

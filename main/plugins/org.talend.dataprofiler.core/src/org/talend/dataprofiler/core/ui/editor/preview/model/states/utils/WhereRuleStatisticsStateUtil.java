@@ -25,7 +25,6 @@ import org.talend.dataquality.indicators.definition.IndicatorDefinition;
 import org.talend.dq.analysis.explore.DQRuleExplorer;
 import org.talend.dq.analysis.explore.DataExplorer;
 import org.talend.dq.indicators.preview.table.WhereRuleChartDataEntity;
-import org.talend.dq.nodes.indicator.type.IndicatorEnum;
 import orgomg.cwm.objectmodel.core.TaggedValue;
 
 /**
@@ -64,11 +63,11 @@ public class WhereRuleStatisticsStateUtil {
         List<List<Indicator>> indicatorList = new ArrayList<List<Indicator>>();
         // first , add row count indicator
         List<Indicator> rowInd = new ArrayList<Indicator>();
-        rowInd.add(getRownCountUnit(units).getIndicator());
+        rowInd.add(CommonStateUtil.getRowCountTableIndicatorUnit(units).getIndicator());
         indicatorList.add(rowInd);
 
         // then, add all where rules(one chart <--> one list)
-        List<TableIndicatorUnit> whereRuleUnits = removeRowCountUnit(units);
+        List<TableIndicatorUnit> whereRuleUnits = CommonStateUtil.removeRowCountUnit(units);
         int totalNum = whereRuleUnits.size();
         int pageNum = totalNum % size == 0 ? totalNum / size : totalNum / size + 1;
         for (int i = 0; i < pageNum; i++) {
@@ -84,37 +83,6 @@ public class WhereRuleStatisticsStateUtil {
             indicatorList.add(rules);
         }
         return indicatorList;
-    }
-
-    /**
-     * DOC xqliu Comment method "removeRowCountUnit".
-     * 
-     * @param units1
-     * @return
-     */
-    public static List<TableIndicatorUnit> removeRowCountUnit(List<TableIndicatorUnit> units1) {
-        List<TableIndicatorUnit> result = new ArrayList<TableIndicatorUnit>();
-        for (TableIndicatorUnit tiu : units1) {
-            if (!IndicatorEnum.RowCountIndicatorEnum.equals(tiu.getType())) {
-                result.add(tiu);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * DOC xqliu Comment method "getRownCountUnit".
-     * 
-     * @param units1
-     * @return
-     */
-    public static TableIndicatorUnit getRownCountUnit(List<TableIndicatorUnit> units1) {
-        for (TableIndicatorUnit tiu : units1) {
-            if (IndicatorEnum.RowCountIndicatorEnum.equals(tiu.getType())) {
-                return tiu;
-            }
-        }
-        return null;
     }
 
     /**

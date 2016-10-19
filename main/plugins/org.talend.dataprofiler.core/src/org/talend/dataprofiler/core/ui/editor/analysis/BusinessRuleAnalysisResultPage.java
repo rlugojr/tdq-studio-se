@@ -54,6 +54,7 @@ import org.talend.dataprofiler.core.ui.editor.preview.model.states.IChartTypeSta
 import org.talend.dataprofiler.core.ui.editor.preview.model.states.WhereRuleStatisticsStateTable;
 import org.talend.dataprofiler.core.ui.editor.preview.model.states.table.ITableTypeStates;
 import org.talend.dataprofiler.core.ui.editor.preview.model.states.table.WhereRuleStatisticsTableState;
+import org.talend.dataprofiler.core.ui.editor.preview.model.states.utils.CommonStateUtil;
 import org.talend.dataprofiler.core.ui.events.DynamicChartEventReceiver;
 import org.talend.dataprofiler.core.ui.events.EventEnum;
 import org.talend.dataprofiler.core.ui.events.EventManager;
@@ -323,8 +324,7 @@ public class BusinessRuleAnalysisResultPage extends AbstractAnalysisResultPageWi
 
                             // Added TDQ-8787 20140707 yyin: create and store the dynamic model
                             List<Indicator> allRules = new ArrayList<Indicator>();
-                            List<TableIndicatorUnit> removeRowCountUnit = ((WhereRuleStatisticsTableState) tableTypeState)
-                                    .removeRowCountUnit(units);
+                            List<TableIndicatorUnit> removeRowCountUnit = CommonStateUtil.removeRowCountUnit(units);
                             for (TableIndicatorUnit indUnit : removeRowCountUnit) {
                                 allRules.add(indUnit.getIndicator());
                             }
@@ -356,7 +356,7 @@ public class BusinessRuleAnalysisResultPage extends AbstractAnalysisResultPageWi
                             // Added TDQ-8787 20140707 yyin: create and store the dynamic model for row
                             // count's table
                             List<Indicator> rowCount = new ArrayList<Indicator>();
-                            rowCount.add(tableWhereRule.getRownCountUnit(units).getIndicator());
+                            rowCount.add(CommonStateUtil.getRowCountTableIndicatorUnit(units).getIndicator());
                             DynamicIndicatorModel dyModel = AnalysisUtils.createDynamicModel(chartType, rowCount, null);
                             dyModel.setTableViewer(tableviewerRowCount);
 

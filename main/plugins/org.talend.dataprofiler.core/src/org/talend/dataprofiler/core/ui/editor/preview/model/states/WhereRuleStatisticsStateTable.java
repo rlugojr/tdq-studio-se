@@ -86,9 +86,9 @@ public class WhereRuleStatisticsStateTable extends AbstractChartTypeStatesTable 
      */
     public ICustomerDataset getCustomerDatasetRownCount() {
         CustomerDefaultCategoryDataset customerDataset = new CustomerDefaultCategoryDataset();
-        TableIndicatorUnit rownCountUnit = getRownCountUnit(units);
-        if (rownCountUnit != null) {
-            addRownCountDataEntity2CustomerDataset(customerDataset, rownCountUnit);
+        TableIndicatorUnit rowCountUnit = CommonStateUtil.getRowCountTableIndicatorUnit(units);
+        if (rowCountUnit != null) {
+            addRownCountDataEntity2CustomerDataset(customerDataset, rowCountUnit);
         }
         return customerDataset;
     }
@@ -148,11 +148,12 @@ public class WhereRuleStatisticsStateTable extends AbstractChartTypeStatesTable 
         CustomerDefaultCategoryDataset customerDatasetRownCount = new CustomerDefaultCategoryDataset();
         // MOD msjian TDQ-5119: fix a NPE
         if (units != null && units.size() > 0) {
-            addRownCountDataEntity2CustomerDataset(customerDatasetRownCount, getRownCountUnit(units));
+            TableIndicatorUnit rowCountTableIndicatorUnit = CommonStateUtil.getRowCountTableIndicatorUnit(units);
+            addRownCountDataEntity2CustomerDataset(customerDatasetRownCount, rowCountTableIndicatorUnit);
             result.add(customerDatasetRownCount);
 
             // MOD xqliu 2012-04-23 TDQ-5057: don't include RowCountUnit
-            List<TableIndicatorUnit> whereRuleUnits = removeRowCountUnit(units);
+            List<TableIndicatorUnit> whereRuleUnits = CommonStateUtil.removeRowCountUnit(units);
             int totalNum = whereRuleUnits.size();
             int pageNum = totalNum % size == 0 ? totalNum / size : totalNum / size + 1;
             for (int i = 0; i < pageNum; i++) {
@@ -199,26 +200,6 @@ public class WhereRuleStatisticsStateTable extends AbstractChartTypeStatesTable 
     }
 
     /**
-     * DOC xqliu Comment method "removeRowCountUnit".
-     * 
-     * @param units1
-     * @return
-     */
-    public List<TableIndicatorUnit> removeRowCountUnit(List<TableIndicatorUnit> units1) {
-        return WhereRuleStatisticsStateUtil.removeRowCountUnit(units1);
-    }
-
-    /**
-     * DOC xqliu Comment method "getRownCountUnit".
-     * 
-     * @param units1
-     * @return
-     */
-    public TableIndicatorUnit getRownCountUnit(List<TableIndicatorUnit> units1) {
-        return WhereRuleStatisticsStateUtil.getRownCountUnit(units1);
-    }
-
-    /**
      * DOC xqliu Comment method "addDataEntity2CustomerDataset". ADD xqliu 2010-03-10 feature 10834
      * 
      * @param customerDataset
@@ -250,7 +231,7 @@ public class WhereRuleStatisticsStateTable extends AbstractChartTypeStatesTable 
             String value = CommonStateUtil.getUnitValue(unit.getValue());
             String label = unit.getIndicatorName();
             customerDataset.addValue(Double.parseDouble(value), label, label);
-            ChartDataEntity entityCount = CommonStateUtil.createDataEntity(unit, value, label);
+            ChartDataEntity entityCount = CommonStateUtil.createDataEntity(unit, value, label, Long.parseLong(value));
             customerDataset.addDataEntity(entityCount);
         }
     }

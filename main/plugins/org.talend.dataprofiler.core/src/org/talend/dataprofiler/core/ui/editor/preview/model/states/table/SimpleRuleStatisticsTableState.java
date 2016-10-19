@@ -24,7 +24,6 @@ import org.talend.dataprofiler.core.ui.editor.preview.model.states.ChartTablePro
 import org.talend.dataprofiler.core.ui.editor.preview.model.states.ChartTableProviderClassSet.CommonContenteProvider;
 import org.talend.dataprofiler.core.ui.editor.preview.model.states.utils.CommonStateUtil;
 import org.talend.dataprofiler.core.ui.editor.preview.model.states.utils.SimpleStatisticsStateUtil;
-import org.talend.dataprofiler.core.ui.editor.preview.model.states.utils.WhereRuleStatisticsStateUtil;
 import org.talend.dq.analysis.explore.DataExplorer;
 import org.talend.dq.indicators.preview.table.ChartDataEntity;
 
@@ -50,12 +49,13 @@ public class SimpleRuleStatisticsTableState extends AbstractRuleStatisticsTableS
      */
     @Override
     public ChartDataEntity[] getDataEntity() {
-        TableIndicatorUnit rownCountUnit = WhereRuleStatisticsStateUtil.getRownCountUnit(tableunits);
+        TableIndicatorUnit rowCountUnit = CommonStateUtil.getRowCountTableIndicatorUnit(tableunits);
         List<ChartDataEntity> dataEnities = new ArrayList<ChartDataEntity>();
-        if (rownCountUnit != null) {
-            String value = CommonStateUtil.getUnitValue(rownCountUnit.getValue());
-            String label = rownCountUnit.getIndicatorName();
-            ChartDataEntity createDataEntity = CommonStateUtil.createDataEntity(rownCountUnit, value, label);
+        if (rowCountUnit != null) {
+            String value = CommonStateUtil.getUnitValue(rowCountUnit.getValue());
+            String label = rowCountUnit.getIndicatorName();
+            ChartDataEntity createDataEntity = CommonStateUtil
+                    .createDataEntity(rowCountUnit, value, label, Long.parseLong(value));
             dataEnities.add(createDataEntity);
         }
         return dataEnities.toArray(new ChartDataEntity[dataEnities.size()]);
