@@ -56,6 +56,7 @@ import org.talend.core.model.repository.IRepositoryViewObject;
 import org.talend.core.repository.model.repositoryObject.MetadataColumnRepositoryObject;
 import org.talend.cwm.helper.ModelElementHelper;
 import org.talend.cwm.helper.SwitchHelpers;
+import org.talend.cwm.helper.TaggedValueHelper;
 import org.talend.cwm.relational.TdColumn;
 import org.talend.dataprofiler.core.ImageLib;
 import org.talend.dataprofiler.core.PluginConstant;
@@ -98,6 +99,8 @@ public class ColumnAnalysisDetailsPage extends DynamicAnalysisMasterPage {
     private Composite tree;
 
     private Composite navigationComposite;
+
+    private Composite drillDownComposite;
 
     AnalysisColumnTreeViewer treeViewer;
 
@@ -255,6 +258,21 @@ public class ColumnAnalysisDetailsPage extends DynamicAnalysisMasterPage {
 
         createPaginationTree(topComp1);
         analysisColumnSection.setClient(topComp1);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.talend.dataprofiler.core.ui.editor.analysis.AbstractAnalysisMetadataPage#checkSqlEnginIndicatorExist()
+     */
+    @Override
+    protected boolean checkSqlEnginIndicatorExist() {
+        for (ModelElementIndicator modelElementIndicator : this.treeViewer.getModelElementIndicator()) {
+            if (modelElementIndicator.contains(IndicatorEnum.SqlPatternMatchingIndicatorEnum)) {
+                return true;
+            }
+        }
+        return super.checkSqlEnginIndicatorExist();
     }
 
     /**
@@ -529,6 +547,8 @@ public class ColumnAnalysisDetailsPage extends DynamicAnalysisMasterPage {
         // 2011.1.12 MOD by zshen to unify anlysis and connection id when saving.
 
         this.nameText.setText(analysisHandler.getName());
+        TaggedValueHelper.setTaggedValue(getCurrentModelElement(), TaggedValueHelper.IS_USE_SAMPLE_DATA,
+                isRunWithSampleData.toString());
         // TDQ-5581,if has removed emlements(patten/udi),should remove dependency each other before saving.
         // MOD yyi 2012-02-08 TDQ-4621:Explicitly set true for updating dependencies.
         ReturnCode saved = ElementWriterFactory.getInstance().createAnalysisWrite()
@@ -764,9 +784,9 @@ public class ColumnAnalysisDetailsPage extends DynamicAnalysisMasterPage {
      * @return whether have a datePatternFreqIndicator in the "analyzed Columns"
      */
     @Override
-    protected boolean includeDatePatternFreqIndicator() {
+    protected boolean includeJavaEnginIndicator() {
         for (ModelElementIndicator modelElementIndicator : this.treeViewer.getModelElementIndicator()) {
-            if (modelElementIndicator.contains(IndicatorEnum.DatePatternFreqIndicatorEnum)) {
+            if (modelElementIndicator.containsAny(IndicatorEnum.getJavaIndicatorsEnum())) {
                 return true;
             }
         }
@@ -847,12 +867,50 @@ public class ColumnAnalysisDetailsPage extends DynamicAnalysisMasterPage {
     @Override
     protected void createDrillDownPart(AnalysisParameters anaParameters, Composite comp2, ExecutionLanguage executionLanguage) {
         // MOD zshen feature 12919 : add allow drill down and max number row component for java engine.
-        final Composite drillDownComposite = createDrillDownComposite(comp2, anaParameters);
+        drillDownComposite = createDrillDownComposite(comp2, anaParameters);
         if (ExecutionLanguage.SQL.equals(executionLanguage)) {
             drillDownComposite.setVisible(false);
             showDrillDownComposite(drillDownComposite, 10);
         }
         addListenerToExecuteEngine(execCombo, drillDownComposite);
+    }
+
+    @Override
+    protected void doCheckOption() {
+        Boolean isSqlSelected = TaggedValueHelper.getValueBoolean(TaggedValueHelper.IS_SQL_ENGIN_BEFORE_CHECK,
+                getCurrentModelElement());
+        if (isRunWithSampleData) {
+            if (currentModelIsSqlEngin()) {
+                changeExecuteLanguageToJava(false);
+                if (!isSqlSelected) {
+                    TaggedValueHelper.setTaggedValue(getCurrentModelElement(), TaggedValueHelper.IS_SQL_ENGIN_BEFORE_CHECK,
+                            "true"); //$NON-NLS-1$
+                }
+            }
+            execCombo.setEnabled(false);
+        } else {
+            if (isSqlSelected) {
+                changeExecuteLanguageToSql(true);
+                if (!isRunWithSampleData) {// java engin exchange failed so that don't change this attribute
+                    TaggedValueHelper.setTaggedValue(getCurrentModelElement(), TaggedValueHelper.IS_SQL_ENGIN_BEFORE_CHECK,
+                            "false"); //$NON-NLS-1$
+                }
+            }
+            execCombo.setEnabled(true);
+        }
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.talend.dataprofiler.core.ui.editor.analysis.AbstractAnalysisMetadataPage#refreshEnginSection()
+     */
+    @Override
+    protected void refreshEnginSection() {
+        execLang = execCombo.getText();
+        ExecutionLanguage currentLanguage = ExecutionLanguage.get(execLang);
+        refreshEnginSection(drillDownComposite, currentLanguage);
     }
 
     /**
@@ -922,42 +980,60 @@ public class ColumnAnalysisDetailsPage extends DynamicAnalysisMasterPage {
     }
 
     private void addListenerToExecuteEngine(final CCombo execCombo1, final Composite javaEnginSection) {
-        execCombo1.addModifyListener(new ModifyListener() {
+        execCombo1.addSelectionListener(new SelectionAdapter() {
 
-            public void modifyText(ModifyEvent e) {
+            /*
+             * (non-Javadoc)
+             * 
+             * @see org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse.swt.events.SelectionEvent)
+             */
+            @Override
+            public void widgetSelected(SelectionEvent e) {
                 // MOD xqliu 2009-08-24 bug 8776
                 execLang = execCombo1.getText();
 
                 // MOD zshen 11104 2010-01-27: when have a datePatternFreqIndicator in the
                 // "analyzed Columns",ExecutionLanguage only is Java.
                 ExecutionLanguage currentLanguage = ExecutionLanguage.get(execLang);
-                if (ExecutionLanguage.SQL.equals(currentLanguage) && includeDatePatternFreqIndicator()) {
-                    MessageUI.openWarning(DefaultMessagesImpl
-                            .getString("ColumnMasterDetailsPage.DatePatternFreqIndicatorWarning")); //$NON-NLS-1$
-                    execCombo1.setText(ExecutionLanguage.JAVA.getLiteral());
+                if (ExecutionLanguage.SQL.equals(currentLanguage) && includeJavaEnginIndicator()) {
+                    MessageUI.openWarning(DefaultMessagesImpl.getString("ColumnMasterDetailsPage.JavaIndicatorExistWarning")); //$NON-NLS-1$
+                    changeExecuteLanguageToJava(false);
+                    execLang = execCombo1.getText();
+                    return;
+                } else if (ExecutionLanguage.JAVA.equals(currentLanguage) && checkSqlEnginIndicatorExist()) {
+                    MessageUI.openWarning(DefaultMessagesImpl.getString("ColumnMasterDetailsPage.SqlIndicatorExistWarning")); //$NON-NLS-1$
+                    changeExecuteLanguageToSql(true);
                     execLang = execCombo1.getText();
                     return;
                 }
-                // ~11104
-                // MOD zshen feature 12919 : hidden or display parameter of java engin.
-                if (ExecutionLanguage.SQL.equals(currentLanguage)) {
-                    javaEnginSection.setVisible(false);
-                    showDrillDownComposite(javaEnginSection, 10);
-                } else {
-                    javaEnginSection.setVisible(true);
-                    showDrillDownComposite(javaEnginSection, 100);
-                }
-                // 12919~
-                setDirty(true);
-                setLanguageToTreeViewer(currentLanguage);
-                // ~
-
-                // TDQ-11694 msjian : column analysis change from sql to java engine, can not show java parameters
-                // correctly(UI)
-                form.reflow(true);
+                refreshEnginSection(javaEnginSection, currentLanguage);
             }
 
         });
+    }
+
+    /**
+     * DOC zshen Comment method "refreshEnginSection".
+     * 
+     * @param javaEnginSection
+     * @param currentLanguage
+     */
+    protected void refreshEnginSection(final Composite javaEnginSection, ExecutionLanguage currentLanguage) {
+        if (ExecutionLanguage.SQL.equals(currentLanguage)) {
+            javaEnginSection.setVisible(false);
+            showDrillDownComposite(javaEnginSection, 10);
+        } else {
+            javaEnginSection.setVisible(true);
+            showDrillDownComposite(javaEnginSection, 100);
+        }
+        // 12919~
+        setDirty(true);
+        setLanguageToTreeViewer(currentLanguage);
+        // ~
+
+        // TDQ-11694 msjian : column analysis change from sql to java engine, can not show java parameters
+        // correctly(UI)
+        form.reflow(true);
     }
 
     /*

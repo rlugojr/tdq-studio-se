@@ -68,7 +68,7 @@ public class ColumnAnalysisExecutor extends AnalysisExecutor {
 
     @Override
     protected ReturnCode evaluate(Analysis analysis, java.sql.Connection connection, String sqlStatement) {
-        IndicatorEvaluator eval = new IndicatorEvaluator(analysis);
+        IndicatorEvaluator eval = CreateIndicatorEvaluator(analysis);
         // MOD xqliu 2009-02-09 bug 6237
         eval.setMonitor(getMonitor());
         // set it into the evaluator
@@ -102,6 +102,17 @@ public class ColumnAnalysisExecutor extends AnalysisExecutor {
         }
 
         return eval.evaluateIndicators(sqlStatement, closeAtTheEnd);
+    }
+
+    /**
+     * DOC zshen Comment method "CreateIndicatorEvaluator".
+     * 
+     * @param analysis
+     * @return
+     */
+    protected IndicatorEvaluator CreateIndicatorEvaluator(Analysis analysis) {
+        IndicatorEvaluator eval = new IndicatorEvaluator(analysis);
+        return eval;
     }
 
     /**

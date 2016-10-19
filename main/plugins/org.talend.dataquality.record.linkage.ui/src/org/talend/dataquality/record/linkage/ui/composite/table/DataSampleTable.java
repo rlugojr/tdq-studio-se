@@ -1165,7 +1165,7 @@ public class DataSampleTable implements TDQObserver<ModelElement[]>, Observerabl
      * 
      * @return the limitNumber
      */
-    protected int getLimitNumber() {
+    public int getLimitNumber() {
         return this.limitNumber;
     }
 
@@ -1287,6 +1287,15 @@ public class DataSampleTable implements TDQObserver<ModelElement[]>, Observerabl
         if (selectionStyle != null) {
             selectionStyle.setAttributeValue(CellStyleAttributes.FONT, font);
         }
+    }
+
+    /**
+     * Getter for propertyNames.
+     * 
+     * @return the propertyNames
+     */
+    public String[] getPropertyNames() {
+        return this.propertyNames;
     }
 
 }

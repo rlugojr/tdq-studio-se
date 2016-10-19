@@ -14,6 +14,7 @@ package org.talend.dataprofiler.core.model.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -116,7 +117,34 @@ public abstract class ModelElementIndicatorImpl implements ModelElementIndicator
     }
 
     public boolean contains(IndicatorEnum indicatorEnum) {
-        return this.flatIndicatorEnumList.contains(indicatorEnum);
+        return this.flatIndicatorEnumList.contains(indicatorEnum) || specialIndicatorEnumContains(indicatorEnum);
+    }
+
+    /**
+     * DOC zshen Comment method "specialIndicatorEnumContains".
+     * 
+     * @param indicatorEnum
+     * @return
+     */
+    private boolean specialIndicatorEnumContains(IndicatorEnum indicatorEnum) {
+        for (IndicatorUnit indiUnit : this.specialIndicatorUnitList) {
+            if (indicatorEnum == indiUnit.getType()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean containsAny(Collection<IndicatorEnum> indciatorEnums) {
+        if (indciatorEnums == null) {
+            return false;
+        }
+        for (IndicatorEnum theEnum : indciatorEnums) {
+            if (this.contains(theEnum)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean tempContains(IndicatorEnum indicatorEnum) {

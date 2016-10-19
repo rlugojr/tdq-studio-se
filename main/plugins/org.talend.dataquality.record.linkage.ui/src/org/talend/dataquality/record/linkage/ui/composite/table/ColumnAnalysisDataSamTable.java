@@ -14,7 +14,6 @@ package org.talend.dataquality.record.linkage.ui.composite.table;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -22,14 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.talend.core.model.metadata.builder.connection.MetadataColumn;
-import org.talend.cwm.db.connection.DatabaseSQLExecutor;
-import org.talend.cwm.db.connection.DelimitedFileSQLExecutor;
-import org.talend.cwm.db.connection.ISQLExecutor;
-import org.talend.cwm.helper.ConnectionHelper;
-import org.talend.cwm.relational.TdColumn;
-import org.talend.dataquality.record.linkage.ui.i18n.internal.DefaultMessagesImpl;
-import orgomg.cwm.foundation.softwaredeployment.DataManager;
+import org.talend.dataprofiler.common.ui.editor.preview.data.DataPreviewHandler;
 import orgomg.cwm.objectmodel.core.ModelElement;
 
 /**
@@ -93,36 +85,10 @@ public class ColumnAnalysisDataSamTable extends DataSampleTable {
      */
     @Override
     protected List<Object[]> createPreviewData(ModelElement[] columns) throws SQLException {
-        // no columns be selected so that no data can be read
-        if (columns == null || columns.length == 0) {
-            return new ArrayList<Object[]>();
-        }
 
-        // use ModelElement instead of node to get the data source type directly.
-        // get connection from column[0]
-        DataManager connection = null;
-        boolean isDelimitedFile = false;
-        ModelElement modelElement = columns[0];
-        if (modelElement instanceof MetadataColumn && !(modelElement instanceof TdColumn)) {
-            isDelimitedFile = true;
-            connection = ConnectionHelper.getTdDataProvider((MetadataColumn) modelElement);
-        } else if (modelElement instanceof TdColumn) {
-            connection = ConnectionHelper.getTdDataProvider((TdColumn) modelElement);
-        } else {// other case it is not support by now
-            log.warn(DefaultMessagesImpl.getString("ColumnAnalysisDataSamTable.UnSupportType")); //$NON-NLS-1$
-            return new ArrayList<Object[]>();
-        }
-
-        ISQLExecutor sqlExecutor = null;
-        if (isDelimitedFile) {
-            sqlExecutor = new DelimitedFileSQLExecutor();
-        } else {// is database
-            sqlExecutor = new DatabaseSQLExecutor();
-        }
-        // set limit
-        sqlExecutor.setLimit(getLimitNumber());
-        sqlExecutor.setShowRandomData(isShowRandomData());
-        return sqlExecutor.executeQuery(connection, Arrays.asList(columns), dataFilter);
+        DataPreviewHandler dataPreviewHandler = new DataPreviewHandler();
+        dataPreviewHandler.setDataFilter(dataFilter);
+        return dataPreviewHandler.createPreviewData(columns, getLimitNumber(), isShowRandomData());
     }
 
     /*

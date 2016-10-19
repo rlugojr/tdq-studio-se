@@ -61,6 +61,7 @@ Export-Package: org.talend.algorithms,
  org.talend.dataquality.rules,
  org.talend.dataquality.rules.impl,
  org.talend.dataquality.rules.util,
+ org.talend.dataquality.sample.data,
  org.talend.i18n,
  org.talend.resource
 Require-Bundle: org.talend.utils;visibility:=reexport,

@@ -43,6 +43,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.VerifyEvent;
@@ -90,6 +91,7 @@ import org.talend.dataprofiler.core.ui.editor.composite.DataFilterComp;
 import org.talend.dataprofiler.core.ui.events.EventEnum;
 import org.talend.dataprofiler.core.ui.events.EventManager;
 import org.talend.dataprofiler.core.ui.events.EventReceiver;
+import org.talend.dataprofiler.core.ui.utils.MessageUI;
 import org.talend.dataprofiler.core.ui.wizard.analysis.connection.ConnectionWizard;
 import org.talend.dataquality.analysis.Analysis;
 import org.talend.dataquality.analysis.AnalysisParameters;
@@ -177,6 +179,11 @@ public abstract class AbstractAnalysisMetadataPage extends AbstractMetadataFormP
     protected ModelElementIndicator[] currentModelElementIndicators;
 
     protected EventReceiver afterCreateConnectionReceiver = null;
+
+    protected Boolean isRunWithSampleData = TaggedValueHelper.getValueBoolean(TaggedValueHelper.IS_USE_SAMPLE_DATA,
+            getCurrentModelElement());
+
+    protected Button runBtn = null;
 
     /**
      * the temp value used to store the old connection value, when the user didn't save this page, use to revert
@@ -863,7 +870,10 @@ public abstract class AbstractAnalysisMetadataPage extends AbstractMetadataFormP
         execCombo = new CCombo(comp2, SWT.BORDER);
         // ~
         execCombo.setEditable(false);
-
+        // run with sample data mode only used by java engin
+        if (this.isRunWithSampleData) {
+            execCombo.setEnabled(false);
+        }
         for (ExecutionLanguage language : ExecutionLanguage.VALUES) {
             String temp = language.getLiteral();
             execCombo.add(temp);
@@ -913,11 +923,13 @@ public abstract class AbstractAnalysisMetadataPage extends AbstractMetadataFormP
         if (this.execCombo == null) {
             return;
         }
-        if (!(ExecutionLanguage.JAVA.getLiteral().equals(this.execLang))) {
+        if (currentModelIsSqlEngin()) {
+
             int i = 0;
             for (ExecutionLanguage language : ExecutionLanguage.VALUES) {
-                if (language.compareTo(ExecutionLanguage.JAVA) == 0) {
+                if (language.compareTo(ExecutionLanguage.JAVA) == 0 && this.execCombo.getSelectionIndex() != i) {
                     this.execCombo.select(i);
+                    refreshEnginSection();
                 } else {
                     i++;
                 }
@@ -928,11 +940,20 @@ public abstract class AbstractAnalysisMetadataPage extends AbstractMetadataFormP
         }
     }
 
+    /**
+     * DOC zshen Comment method "refreshEnginSection".
+     * 
+     * @param javaEnginSection
+     * @param currentLanguage
+     */
+    protected void refreshEnginSection() {
+    }
+
     public void enableExecuteLanguage() {
         execCombo.setEnabled(true);
     }
 
-    protected boolean includeDatePatternFreqIndicator() {
+    protected boolean includeJavaEnginIndicator() {
         // only needed in column and column set master page
         return false;
     }
@@ -964,7 +985,7 @@ public abstract class AbstractAnalysisMetadataPage extends AbstractMetadataFormP
         dataPreviewTableCom.setLayout(new GridLayout(1, true));
         createConnBindWidget(dataPreviewTableCom);
         Composite buttonComposite = toolkit.createComposite(dataPreviewTableCom, SWT.NONE);
-        buttonComposite.setLayout(new GridLayout(5, false));
+        buttonComposite.setLayout(new GridLayout(6, false));
         GridDataFactory.fillDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).applyTo(buttonComposite);
         createConnectionButton(buttonComposite, dataPreviewSection);
         if (hasSelectColumnsButton) {
@@ -975,12 +996,69 @@ public abstract class AbstractAnalysisMetadataPage extends AbstractMetadataFormP
         }
         createRefreshDataButtonComp(buttonComposite);
         createRunButton(buttonComposite);
+        createRunSampleDataButton(buttonComposite);
         // create the data table
         createDataTableComposite(dataPreviewTableCom);
         dataPreviewSection.setClient(dataPreviewTableCom);
         if (hasAfterCreateConnectionReceiver) {
             registerEvents();
         }
+    }
+
+    /**
+     * DOC zshen Comment method "createRunSampleDataButton".
+     * 
+     * @param buttonComposite
+     */
+    private void createRunSampleDataButton(Composite buttonComposite) {
+        runBtn = toolkit.createButton(buttonComposite,
+                DefaultMessagesImpl.getString("ColumnMasterDetailsPage.RunSamepData"), SWT.CHECK); //$NON-NLS-1$
+        runBtn.setToolTipText(DefaultMessagesImpl.getString("ColumnAnalysisDetailsPage.runWithSampleDataTooltip")); //$NON-NLS-1$
+        // init the button
+        runBtn.setSelection(isRunWithSampleData);
+
+        runBtn.addSelectionListener(new SelectionAdapter() {
+
+            /*
+             * (non-Javadoc)
+             * 
+             * @see org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse.swt.events.SelectionEvent)
+             */
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                Boolean isSelected = TaggedValueHelper.getValueBoolean(TaggedValueHelper.IS_USE_SAMPLE_DATA,
+                        getCurrentModelElement());
+                isRunWithSampleData = ((Button) e.getSource()).getSelection();
+                if (isRunWithSampleData && checkSqlEnginIndicatorExist()) {
+                    MessageUI.openWarning(DefaultMessagesImpl.getString("ColumnMasterDetailsPage.SqlIndicatorExistWarning")); //$NON-NLS-1$
+                    runBtn.setSelection(!isRunWithSampleData);
+                    isRunWithSampleData = false;
+                    return;
+                }
+                doCheckOption();
+                AbstractAnalysisMetadataPage.this.setDirty(isRunWithSampleData != isSelected);
+
+            }
+
+        });
+    }
+
+    protected boolean checkSqlEnginIndicatorExist() {
+
+        return false;
+    }
+
+    protected void doCheckOption() {
+
+    }
+
+    /**
+     * DOC zshen Comment method "currentIsSqlEngin".
+     * 
+     * @return
+     */
+    protected boolean currentModelIsSqlEngin() {
+        return ExecutionLanguage.SQL.getLiteral().equals(this.execLang);
     }
 
     /**
@@ -1071,14 +1149,31 @@ public abstract class AbstractAnalysisMetadataPage extends AbstractMetadataFormP
 
     public void refreshPreviewTable(boolean loadData) {
         // set sample table parameters
-        sampleTable.setLimitNumber(Integer.parseInt(rowLoadedText.getText()));
-        sampleTable.setShowRandomData(SampleDataShowWay.RANDOM.getLiteral().equals(sampleDataShowWayCombo.getText()));
+        sampleTable.setLimitNumber(this.getPreviewLimit());
+        sampleTable.setShowRandomData(isShowRandomData());
         // TDQ-11981: when get the preview data use the data filter real value when set a context value
-        sampleTable.setDataFilter(ContextHelper.getAnalysisContextValue(getCurrentModelElement(),
-                dataFilterComp.getDataFilterString()));
+        sampleTable.setDataFilter(getDataFilterStr());
 
         sampleTable.reDrawTable(getSelectedColumns(), loadData);
         redrawWarningLabel();
+    }
+
+    /**
+     * DOC zshen Comment method "getDataFilterStr".
+     * 
+     * @return
+     */
+    protected String getDataFilterStr() {
+        return ContextHelper.getAnalysisContextValue(getCurrentModelElement(), dataFilterComp.getDataFilterString());
+    }
+
+    /**
+     * DOC zshen Comment method "isShowRandomData".
+     * 
+     * @return
+     */
+    protected boolean isShowRandomData() {
+        return SampleDataShowWay.RANDOM.getLiteral().equals(sampleDataShowWayCombo.getText());
     }
 
     public void redrawWarningLabel() {
@@ -1528,11 +1623,12 @@ public abstract class AbstractAnalysisMetadataPage extends AbstractMetadataFormP
             return;
         }
 
-        if (!(ExecutionLanguage.SQL.getLiteral().equals(this.execLang))) {
+        if (!currentModelIsSqlEngin()) {
             int i = 0;
             for (ExecutionLanguage language : ExecutionLanguage.VALUES) {
-                if (language.compareTo(ExecutionLanguage.SQL) == 0) {
+                if (language.compareTo(ExecutionLanguage.SQL) == 0 && execCombo.getSelectionIndex() != i) {
                     this.execCombo.select(i);
+                    refreshEnginSection();
                 } else {
                     i++;
                 }

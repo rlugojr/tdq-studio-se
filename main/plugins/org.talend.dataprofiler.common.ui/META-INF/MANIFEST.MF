@@ -19,6 +19,7 @@ Require-Bundle: org.eclipse.jface,
  org.talend.core.runtime
 Export-Package: org.talend.dataprofiler.common.ui.dialog,
  org.talend.dataprofiler.common.ui.editor.preview,
+ org.talend.dataprofiler.common.ui.editor.preview.data,
  org.talend.dataprofiler.common.ui.pagination.pageloder,
  org.talend.dataprofiler.core.ui.grid.utils,
  org.talend.dataprofiler.core.ui.grid.utils.events

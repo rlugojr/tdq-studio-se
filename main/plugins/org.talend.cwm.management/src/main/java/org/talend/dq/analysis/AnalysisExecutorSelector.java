@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.widgets.Display;
 import org.talend.cwm.db.connection.ConnectionUtils;
+import org.talend.cwm.helper.TaggedValueHelper;
 import org.talend.cwm.management.i18n.Messages;
 import org.talend.dataquality.analysis.Analysis;
 import org.talend.dataquality.analysis.AnalysisType;
@@ -109,8 +110,24 @@ public final class AnalysisExecutorSelector {
         if (isDelimitedFile) {
             return new DelimitedFileAnalysisExecutor();
         } else {
-            return sql ? new ColumnAnalysisSqlExecutor() : new ColumnAnalysisExecutor();
+            boolean isValid = hasSampleDataValid(analysis);
+            if (isValid) {
+                return new ColumnAnalysisExecutorWithSampleData();
+            } else {
+                return sql ? new ColumnAnalysisSqlExecutor() : new ColumnAnalysisExecutor();
+            }
         }
+    }
+
+    /**
+     * DOC zshen Comment method "judgeEditorOpenning".
+     * 
+     * @param analysisItem
+     * @return
+     */
+    private static boolean hasSampleDataValid(Analysis analysis) {
+        return TaggedValueHelper.getValueBoolean(TaggedValueHelper.IS_USE_SAMPLE_DATA, analysis);
+
     }
 
     /**

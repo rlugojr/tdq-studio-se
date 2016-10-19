@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.dataprofiler.core.model;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.talend.dataprofiler.core.ui.editor.preview.IndicatorUnit;
@@ -25,6 +26,8 @@ import org.talend.repository.model.IRepositoryNode;
 public interface ModelElementIndicator {
 
     public boolean contains(IndicatorEnum indicatorEnum);
+
+    public boolean containsAny(Collection<IndicatorEnum> indciatorEnums);
 
     public boolean tempContains(IndicatorEnum indicatorEnum);
 

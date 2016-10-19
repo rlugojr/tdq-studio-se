@@ -381,6 +381,7 @@ public class CorePlugin extends AbstractUIPlugin {
      * @return
      * @deprecated use MigrationPlugin.getDefault().getProductVersion()
      */
+    @Deprecated
     public ProductVersion getProductVersion() {
         return MigrationPlugin.getDefault().getProductVersion();
     }

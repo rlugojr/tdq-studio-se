@@ -123,4 +123,17 @@ public class CWMPlugin extends Plugin {
         return installLocation;
     }
 
+    public boolean isCommandLine() {
+        BundleContext configuratorBundleContext = getBundleContext();
+        if (configuratorBundleContext != null) {
+            String commands = configuratorBundleContext.getProperty("eclipse.commands"); //$NON-NLS-1$
+            if (commands != null && commands.contains("-application") //$NON-NLS-1$
+                    // commandLine
+                    && commands.contains("org.talend.commandline.CommandLine")) { //$NON-NLS-1$
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

@@ -844,7 +844,7 @@ public class ColumnSetAnalysisDetailsPage extends AbstractAnalysisMetadataPage i
      * @return
      */
     @Override
-    protected boolean includeDatePatternFreqIndicator() {
+    protected boolean includeJavaEnginIndicator() {
         for (ModelElementIndicator modelElementIndicator : this.treeViewer.getModelElementIndicator()) {
             if (modelElementIndicator.contains(IndicatorEnum.DatePatternFreqIndicatorEnum)) {
                 return true;

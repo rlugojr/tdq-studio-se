@@ -111,4 +111,5 @@ Bundle-Localization: plugin
 Bundle-ClassPath: .
 Import-Package: org.talend.dataprofiler.service,
  org.talend.fileprocess
+Service-Component: OSGI-INF/analysisSampleData.xml
  
