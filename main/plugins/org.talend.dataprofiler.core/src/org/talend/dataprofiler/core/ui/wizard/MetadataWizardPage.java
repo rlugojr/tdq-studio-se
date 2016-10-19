@@ -154,8 +154,9 @@ public abstract class MetadataWizardPage extends AbstractWizardPage {
         String author = ReponsitoryContextBridge.getAuthor();
         authorText.setText(author);
         getParameter().setAuthor(author);
-        // MOD 2009-09-08 yyi Feature: 8870.
-        authorText.setEnabled(ReponsitoryContextBridge.isDefautProject());
+        // MOD 2016-10-19 xqliu TDQ-12692 change the author field to read-only always
+        // both TDQ and TOS for DQ, the author field should be read-only
+        authorText.setEnabled(false);
         // Version
         // Label versionLab = new Label(container, SWT.NONE);
         // versionLab.setText("Version");
