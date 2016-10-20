@@ -12,13 +12,10 @@
 // ============================================================================
 package org.talend.dq.analysis;
 
-import java.sql.Connection;
-
 import org.apache.commons.lang.StringUtils;
 import org.talend.dataquality.analysis.Analysis;
 import org.talend.dq.indicators.IndicatorEvaluator;
 import org.talend.dq.indicators.IndicatorEvaluatorWithSampleData;
-import org.talend.utils.sugars.ReturnCode;
 
 /**
  * DOC zshen class global comment. Detailled comment
@@ -30,17 +27,6 @@ public class ColumnAnalysisExecutorWithSampleData extends ColumnAnalysisExecutor
      */
     public ColumnAnalysisExecutorWithSampleData() {
         super();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.talend.dq.analysis.ColumnAnalysisExecutor#evaluate(org.talend.dataquality.analysis.Analysis, java.sql.Connection,
-     * java.lang.String)
-     */
-    @Override
-    protected ReturnCode evaluate(Analysis analysis, Connection connection, String sqlStatement) {
-        return super.evaluate(analysis, connection, sqlStatement);
     }
 
     /*

@@ -22,6 +22,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.FormEditor;
@@ -422,4 +423,18 @@ public class FunctionalDependencyAnalysisDetailsPage extends AbstractAnalysisMet
             return anaColumnCompareViewer.getPreviewDataColumnOwner() != null;
         }
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.talend.dataprofiler.core.ui.editor.analysis.AbstractAnalysisMetadataPage#createRunSampleDataButton(org.eclipse.swt.
+     * widgets.Composite)
+     */
+    @Override
+    protected void createRunSampleDataButton(Composite buttonComposite) {
+        // here no need to implement anything override this method just to hide the checkbox.
+        // anytime we want to reuse the checkbox just remove this override method
+    }
+
 }

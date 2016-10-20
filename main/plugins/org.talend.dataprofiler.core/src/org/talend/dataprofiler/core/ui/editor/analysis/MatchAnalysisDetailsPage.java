@@ -63,7 +63,6 @@ import org.talend.cwm.db.connection.SQLExecutor;
 import org.talend.cwm.helper.ConnectionHelper;
 import org.talend.cwm.helper.TaggedValueHelper;
 import org.talend.cwm.relational.TdColumn;
-import org.talend.dataprofiler.common.ui.editor.preview.data.DataPreviewHandler;
 import org.talend.dataprofiler.core.CorePlugin;
 import org.talend.dataprofiler.core.ImageLib;
 import org.talend.dataprofiler.core.PluginConstant;
@@ -96,6 +95,7 @@ import org.talend.dataquality.rules.MatchRule;
 import org.talend.dataquality.rules.MatchRuleDefinition;
 import org.talend.dataquality.rules.RulesFactory;
 import org.talend.dq.analysis.MatchAnalysisHandler;
+import org.talend.dq.analysis.data.preview.DataPreviewHandler;
 import org.talend.dq.helper.EObjectHelper;
 import org.talend.dq.helper.RepositoryNodeHelper;
 import org.talend.dq.nodes.ColumnRepNode;
@@ -1128,7 +1128,7 @@ public class MatchAnalysisDetailsPage extends AbstractAnalysisMetadataPage imple
         subPanel.setLayoutData(layoutDataFillBoth);
         subPanel.setLayout(new GridLayout(1, true));
 
-        DataSampleTable.TControl tControl = sampleTable.createTable(subPanel, getSelectedColumns(), listOfData);
+        DataSampleTable.TControl tControl = sampleTable.createTable(subPanel, analysisHandler.getSelectedColumns(), listOfData);
         GridDataFactory.fillDefaults().grab(true, true).applyTo(tControl.getControl());
 
         // when refresh the data, the dataSampleSection's width is not 0
@@ -1171,13 +1171,13 @@ public class MatchAnalysisDetailsPage extends AbstractAnalysisMetadataPage imple
      */
     private Map<MetadataColumn, String> getAllColumnsToKeyMap() {
         // only when open the analysis and match key is not empty
-        if (getSelectedColumns() == null || getSelectedColumns().length < 1) {
+        if (analysisHandler.getSelectedColumns() == null || analysisHandler.getSelectedColumns().length < 1) {
             return null;
         }
 
         Map<MetadataColumn, String> columnMap = new HashMap<MetadataColumn, String>();
         int index = 0;
-        for (ModelElement column : getSelectedColumns()) {
+        for (ModelElement column : analysisHandler.getSelectedColumns()) {
             columnMap.put((MetadataColumn) column, String.valueOf(index++));
         }
         return columnMap;
@@ -1325,7 +1325,6 @@ public class MatchAnalysisDetailsPage extends AbstractAnalysisMetadataPage imple
         try {
             DataPreviewHandler dataPreviewHandler = new DataPreviewHandler();
             isDataAvailable = new ReturnCode();
-            dataPreviewHandler.setDataFilter(this.getDataFilterStr());
             return dataPreviewHandler.createPreviewData(getSelectedColumnsFromHandler(), getPreviewLimit(),
                     this.isShowRandomData());
         } catch (SQLException e) {

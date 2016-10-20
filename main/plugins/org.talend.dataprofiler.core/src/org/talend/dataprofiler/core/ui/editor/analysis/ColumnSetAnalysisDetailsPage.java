@@ -50,12 +50,14 @@ import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 import org.talend.core.model.metadata.builder.connection.Connection;
+import org.talend.core.model.metadata.builder.connection.FileConnection;
 import org.talend.core.model.metadata.builder.connection.MetadataColumn;
 import org.talend.core.model.properties.ConnectionItem;
 import org.talend.core.model.repository.IRepositoryViewObject;
 import org.talend.core.repository.model.repositoryObject.MetadataColumnRepositoryObject;
 import org.talend.cwm.helper.ModelElementHelper;
 import org.talend.cwm.helper.SwitchHelpers;
+import org.talend.cwm.helper.TaggedValueHelper;
 import org.talend.cwm.relational.TdColumn;
 import org.talend.dataprofiler.core.PluginConstant;
 import org.talend.dataprofiler.core.helper.ModelElementIndicatorHelper;
@@ -100,6 +102,7 @@ import org.talend.dq.writer.impl.ElementWriterFactory;
 import org.talend.repository.model.IRepositoryNode;
 import org.talend.repository.model.RepositoryNode;
 import org.talend.utils.sugars.ReturnCode;
+import orgomg.cwm.foundation.softwaredeployment.DataManager;
 import orgomg.cwm.objectmodel.core.ModelElement;
 
 /**
@@ -672,7 +675,8 @@ public class ColumnSetAnalysisDetailsPage extends AbstractAnalysisMetadataPage i
         } else {
             analysis.getContext().setConnection(null);
         }
-
+        TaggedValueHelper.setTaggedValue(getCurrentModelElement(), TaggedValueHelper.IS_USE_SAMPLE_DATA,
+                isRunWithSampleData.toString());
         // save the number of connections per analysis
         this.saveNumberOfConnectionsPerAnalysis();
 
@@ -950,6 +954,53 @@ public class ColumnSetAnalysisDetailsPage extends AbstractAnalysisMetadataPage i
         List<IRepositoryNode> columnSetMultiValueList = this.treeViewer.getColumnSetMultiValueList();
         return (ModelElementIndicator[]) columnSetMultiValueList.toArray();
 
+    }
+
+    /*
+     * (non-Javadoc)
+     * Same with column detail page to do a merge when have a time
+     * 
+     * @see org.talend.dataprofiler.core.ui.editor.analysis.AbstractAnalysisMetadataPage#doCheckOption()
+     */
+    @Override
+    protected void doCheckOption() {
+        Boolean isSqlSelected = TaggedValueHelper.getValueBoolean(TaggedValueHelper.IS_SQL_ENGIN_BEFORE_CHECK,
+                getCurrentModelElement());
+        if (isRunWithSampleData) {
+            if (currentModelIsSqlEngin()) {
+                changeExecuteLanguageToJava(false);
+                if (!isSqlSelected) {
+                    TaggedValueHelper.setTaggedValue(getCurrentModelElement(), TaggedValueHelper.IS_SQL_ENGIN_BEFORE_CHECK,
+                            "true"); //$NON-NLS-1$
+                }
+            }
+            execCombo.setEnabled(false);
+        } else {
+            if (isSqlSelected) {
+                changeExecuteLanguageToSql(true);
+                if (!isRunWithSampleData) {// java engin exchange failed so that don't change this attribute
+                    TaggedValueHelper.setTaggedValue(getCurrentModelElement(), TaggedValueHelper.IS_SQL_ENGIN_BEFORE_CHECK,
+                            "false"); //$NON-NLS-1$
+                }
+            }
+            if (!isFileConnection()) {
+                execCombo.setEnabled(true);
+            }
+        }
+    }
+
+    /**
+     * DOC zshen Comment method "isFileConnection".
+     * Same with column detail page to do a merge when have a time
+     * 
+     * @return
+     */
+    private boolean isFileConnection() {
+        DataManager connection = getCurrentModelElement().getContext().getConnection();
+        if (FileConnection.class.isInstance(connection)) {
+            return true;
+        }
+        return false;
     }
 
 }

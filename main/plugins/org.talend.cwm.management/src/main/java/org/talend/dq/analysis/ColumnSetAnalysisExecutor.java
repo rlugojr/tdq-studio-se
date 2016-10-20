@@ -67,7 +67,7 @@ public class ColumnSetAnalysisExecutor extends AnalysisExecutor {
      */
     @Override
     protected boolean runAnalysis(Analysis analysis, String sqlStatement) {
-        ColumnSetIndicatorEvaluator eval = new ColumnSetIndicatorEvaluator(analysis);
+        ColumnSetIndicatorEvaluator eval = createIndicatorEvaluator(analysis);
         eval.setMonitor(getMonitor());
         // --- add indicators
         EList<Indicator> indicators = analysis.getResults().getIndicators();
@@ -82,17 +82,10 @@ public class ColumnSetAnalysisExecutor extends AnalysisExecutor {
         TypedReturnCode<java.sql.Connection> connection = null;
         // MOD yyi 2011-02-22 17871:delimitefile
         if (!isDelimitedFile) {
-            connection = getConnectionBeforeRun(analysis);
+            connection = initConnection(analysis, eval);
             if (!connection.isOk()) {
-                this.traceError(connection.getMessage());
-                return Boolean.FALSE;
+                return false;
             }
-
-            // set it into the evaluator
-            eval.setConnection(connection.getObject());
-            // use pooled connection
-            eval.setPooledConnection(POOLED_CONNECTION);
-
         }
 
         // when to close connection
@@ -116,6 +109,38 @@ public class ColumnSetAnalysisExecutor extends AnalysisExecutor {
             getMonitor().worked(compIndicatorsWorked);
         }
         return rc.isOk();
+    }
+
+    /**
+     * DOC zshen Comment method "initConnection".
+     * 
+     * @param analysis
+     * @param eval
+     * @return
+     */
+    protected TypedReturnCode<java.sql.Connection> initConnection(Analysis analysis, ColumnSetIndicatorEvaluator eval) {
+        TypedReturnCode<java.sql.Connection> connection;
+        connection = getConnectionBeforeRun(analysis);
+        if (!connection.isOk()) {
+            this.traceError(connection.getMessage());
+            return connection;
+        }
+
+        // set it into the evaluator
+        eval.setConnection(connection.getObject());
+        // use pooled connection
+        eval.setPooledConnection(POOLED_CONNECTION);
+        return connection;
+    }
+
+    /**
+     * DOC zshen Comment method "createIndicatorEvaluator".
+     * 
+     * @param analysis
+     * @return
+     */
+    protected ColumnSetIndicatorEvaluator createIndicatorEvaluator(Analysis analysis) {
+        return new ColumnSetIndicatorEvaluator(analysis);
     }
 
     /*

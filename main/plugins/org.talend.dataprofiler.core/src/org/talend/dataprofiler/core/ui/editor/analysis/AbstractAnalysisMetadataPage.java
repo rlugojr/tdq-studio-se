@@ -183,7 +183,7 @@ public abstract class AbstractAnalysisMetadataPage extends AbstractMetadataFormP
     protected Boolean isRunWithSampleData = TaggedValueHelper.getValueBoolean(TaggedValueHelper.IS_USE_SAMPLE_DATA,
             getCurrentModelElement());
 
-    protected Button runBtn = null;
+    protected Button runWithSampleBtn = null;
 
     /**
      * the temp value used to store the old connection value, when the user didn't save this page, use to revert
@@ -1010,14 +1010,14 @@ public abstract class AbstractAnalysisMetadataPage extends AbstractMetadataFormP
      * 
      * @param buttonComposite
      */
-    private void createRunSampleDataButton(Composite buttonComposite) {
-        runBtn = toolkit.createButton(buttonComposite,
+    protected void createRunSampleDataButton(Composite buttonComposite) {
+        runWithSampleBtn = toolkit.createButton(buttonComposite,
                 DefaultMessagesImpl.getString("ColumnMasterDetailsPage.RunSamepData"), SWT.CHECK); //$NON-NLS-1$
-        runBtn.setToolTipText(DefaultMessagesImpl.getString("ColumnAnalysisDetailsPage.runWithSampleDataTooltip")); //$NON-NLS-1$
+        runWithSampleBtn.setToolTipText(DefaultMessagesImpl.getString("ColumnAnalysisDetailsPage.runWithSampleDataTooltip")); //$NON-NLS-1$
         // init the button
-        runBtn.setSelection(isRunWithSampleData);
+        runWithSampleBtn.setSelection(isRunWithSampleData);
 
-        runBtn.addSelectionListener(new SelectionAdapter() {
+        runWithSampleBtn.addSelectionListener(new SelectionAdapter() {
 
             /*
              * (non-Javadoc)
@@ -1026,17 +1026,15 @@ public abstract class AbstractAnalysisMetadataPage extends AbstractMetadataFormP
              */
             @Override
             public void widgetSelected(SelectionEvent e) {
-                Boolean isSelected = TaggedValueHelper.getValueBoolean(TaggedValueHelper.IS_USE_SAMPLE_DATA,
-                        getCurrentModelElement());
                 isRunWithSampleData = ((Button) e.getSource()).getSelection();
                 if (isRunWithSampleData && checkSqlEnginIndicatorExist()) {
                     MessageUI.openWarning(DefaultMessagesImpl.getString("ColumnMasterDetailsPage.SqlIndicatorExistWarning")); //$NON-NLS-1$
-                    runBtn.setSelection(!isRunWithSampleData);
+                    runWithSampleBtn.setSelection(!isRunWithSampleData);
                     isRunWithSampleData = false;
                     return;
                 }
                 doCheckOption();
-                AbstractAnalysisMetadataPage.this.setDirty(isRunWithSampleData != isSelected);
+                AbstractAnalysisMetadataPage.this.setDirty(true);
 
             }
 

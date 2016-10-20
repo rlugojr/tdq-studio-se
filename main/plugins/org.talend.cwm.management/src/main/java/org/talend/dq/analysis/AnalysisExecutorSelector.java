@@ -140,10 +140,11 @@ public final class AnalysisExecutorSelector {
     private static AnalysisExecutor getColumnSetAnalysisExecutor(Analysis analysis, ExecutionLanguage executionEngine) {
         boolean isDelimitedFile = ConnectionUtils.isDelimitedFileConnection((DataProvider) analysis.getContext().getConnection());
         boolean sql = ExecutionLanguage.SQL.equals(executionEngine);
-        if (isDelimitedFile) {
-            return new ColumnSetAnalysisExecutor(true, false);
+        boolean isValid = hasSampleDataValid(analysis);
+        if (isValid) {
+            return new ColumnSetAnalysisExecutorWithSampleData(false, false);
         } else {
-            return sql ? new MultiColumnAnalysisExecutor() : new ColumnSetAnalysisExecutor(false, false);
+            return sql ? new MultiColumnAnalysisExecutor() : new ColumnSetAnalysisExecutor(isDelimitedFile, false);
         }
     }
 

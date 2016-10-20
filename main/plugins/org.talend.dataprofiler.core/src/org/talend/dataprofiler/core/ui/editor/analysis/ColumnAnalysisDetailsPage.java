@@ -51,6 +51,7 @@ import org.eclipse.ui.forms.widgets.ImageHyperlink;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 import org.talend.core.model.metadata.builder.connection.Connection;
+import org.talend.core.model.metadata.builder.connection.FileConnection;
 import org.talend.core.model.metadata.builder.connection.MetadataColumn;
 import org.talend.core.model.repository.IRepositoryViewObject;
 import org.talend.core.repository.model.repositoryObject.MetadataColumnRepositoryObject;
@@ -89,6 +90,7 @@ import org.talend.dq.nodes.indicator.type.IndicatorEnum;
 import org.talend.dq.writer.impl.ElementWriterFactory;
 import org.talend.repository.model.RepositoryNode;
 import org.talend.utils.sugars.ReturnCode;
+import orgomg.cwm.foundation.softwaredeployment.DataManager;
 import orgomg.cwm.objectmodel.core.ModelElement;
 
 /**
@@ -896,9 +898,24 @@ public class ColumnAnalysisDetailsPage extends DynamicAnalysisMasterPage {
                             "false"); //$NON-NLS-1$
                 }
             }
-            execCombo.setEnabled(true);
+            if (!isFileConnection()) {
+                execCombo.setEnabled(true);
+            }
         }
 
+    }
+
+    /**
+     * DOC zshen Comment method "isFileConnection".
+     * 
+     * @return
+     */
+    private boolean isFileConnection() {
+        DataManager connection = getCurrentModelElement().getContext().getConnection();
+        if (FileConnection.class.isInstance(connection)) {
+            return true;
+        }
+        return false;
     }
 
     /*

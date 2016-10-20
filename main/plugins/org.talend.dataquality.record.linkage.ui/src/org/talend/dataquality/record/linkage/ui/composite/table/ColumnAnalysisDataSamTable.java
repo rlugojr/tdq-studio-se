@@ -21,7 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.talend.dataprofiler.common.ui.editor.preview.data.DataPreviewHandler;
+import org.talend.dq.analysis.data.preview.DataPreviewHandler;
 import orgomg.cwm.objectmodel.core.ModelElement;
 
 /**

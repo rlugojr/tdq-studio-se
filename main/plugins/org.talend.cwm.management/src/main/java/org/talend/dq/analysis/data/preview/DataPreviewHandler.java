@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.dataprofiler.common.ui.editor.preview.data;
+package org.talend.dq.analysis.data.preview;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -35,6 +35,8 @@ import com.sun.istack.internal.logging.Logger;
  */
 public class DataPreviewHandler {
 
+    private DataManager connection = null;
+
     final static Logger log = Logger.getLogger(DataPreviewHandler.class);
 
     private String dataFilter = StringUtils.EMPTY;
@@ -47,7 +49,7 @@ public class DataPreviewHandler {
 
         // use ModelElement instead of node to get the data source type directly.
         // get connection from column[0]
-        DataManager connection = null;
+
         boolean isDelimitedFile = false;
         ModelElement modelElement = columns[0];
         if (modelElement instanceof MetadataColumn && !(modelElement instanceof TdColumn)) {
@@ -79,6 +81,10 @@ public class DataPreviewHandler {
      */
     public void setDataFilter(String dataFilter) {
         this.dataFilter = dataFilter;
+    }
+
+    public DataManager getConnection() {
+        return connection;
     }
 
 }

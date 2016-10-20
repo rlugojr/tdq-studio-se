@@ -170,7 +170,7 @@ public class ColumnSetIndicatorEvaluator extends Evaluator<String> {
             if (statement != null) {
                 statement.close();
             }
-            getConnection().close();
+            closeConnection();
         }
 
         return ok;
