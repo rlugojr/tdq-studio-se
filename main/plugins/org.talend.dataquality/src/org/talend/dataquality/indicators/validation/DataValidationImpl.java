@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.dataquality.indicators.validation;
 
+import java.util.List;
+
 import org.talend.cwm.indicator.DataValidation;
 
 /**
@@ -50,6 +52,50 @@ public class DataValidationImpl implements DataValidation {
     @Override
     public void setCheckKey(boolean checkKey) {
         this.checkKey = checkKey;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.talend.cwm.indicator.IPropertyOrder#isWork()
+     */
+    @Override
+    public boolean isWork() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.talend.cwm.indicator.IPropertyOrder#setWork(boolean)
+     */
+    @Override
+    public void setWork(boolean isWork) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.talend.cwm.indicator.IPropertyOrder#add(java.lang.Object[])
+     */
+    @Override
+    public boolean add(Object[] element) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.talend.cwm.indicator.IPropertyOrder#getResult()
+     */
+    @Override
+    public List<Object[]> getResult() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
