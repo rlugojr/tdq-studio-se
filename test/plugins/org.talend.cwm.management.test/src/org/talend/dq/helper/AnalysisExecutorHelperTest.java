@@ -12,10 +12,7 @@
 // ============================================================================
 package org.talend.dq.helper;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -115,7 +112,7 @@ public class AnalysisExecutorHelperTest {
         schema.setName("schemaName"); //$NON-NLS-1$
         tdTable.setNamespace(schema);
 
-        assertEquals("\"schemaName\".\"tableName\"", AnalysisExecutorHelper.getTableName(tdColumn, dbmsLanguage)); //$NON-NLS-1$
+        assertEquals("\"SCHEMANAME\".\"TABLENAME\"", AnalysisExecutorHelper.getTableName(tdColumn, dbmsLanguage)); //$NON-NLS-1$
 
     }
 
