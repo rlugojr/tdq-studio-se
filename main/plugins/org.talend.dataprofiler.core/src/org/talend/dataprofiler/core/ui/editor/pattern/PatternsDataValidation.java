@@ -89,4 +89,15 @@ public class PatternsDataValidation extends DataValidationImpl {
         return true;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.talend.dataquality.indicators.validation.DataValidationImpl#add(java.lang.Object[])
+     */
+    @Override
+    public boolean add(Object[] element) {
+        // create list and maintance it
+        return super.add(element);
+    }
+
 }

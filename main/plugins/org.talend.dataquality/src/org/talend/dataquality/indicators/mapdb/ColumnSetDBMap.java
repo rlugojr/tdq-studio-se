@@ -104,6 +104,9 @@ public class ColumnSetDBMap extends DBMap<List<Object>, Long> {
      */
     @Override
     public List<Object[]> subList(long fromIndex, long toIndex, Map<Long, List<Object>> indexMap, DataValidation dataValiator) {
+        if (dataValiator == null) {
+            return subList(fromIndex, toIndex, indexMap, dataValiator);
+        }
         boolean stratToRecord = false;
         List<Object[]> returnList = new ArrayList<Object[]>();
         if (!checkIndex(fromIndex, toIndex)) {
@@ -134,14 +137,14 @@ public class ColumnSetDBMap extends DBMap<List<Object>, Long> {
             if (dataValiator != null && !dataValiator.isValid(dataValiator.isCheckKey() ? next : this.get(next))) {
                 continue;
             }
-            if (index == 0 && fromKey == null && indexMap != null) {
+            if (index == 0 && fromKey == null && indexMap != null && !dataValiator.isWork()) {
                 indexMap.put(0l, next);
             }
             if (index == fromIndex) {
                 stratToRecord = true;
             }
             if (index == toIndex) {
-                if (toKey == null && indexMap != null) {
+                if (toKey == null && indexMap != null && !dataValiator.isWork()) {
                     indexMap.put(toIndex, next);
                 }
                 break;
@@ -153,13 +156,14 @@ public class ColumnSetDBMap extends DBMap<List<Object>, Long> {
                 }
                 Long value = this.get(next);
                 arrayElement[next.size()] = (value == null ? "" : value.toString()); //$NON-NLS-1$
-                returnList.add(arrayElement);
+                dataValiator.add(arrayElement);
+
             }
+            // what time should do this need to think
             index++;
 
         }
 
-        return returnList;
+        return dataValiator.getResult();
     }
-
 }
