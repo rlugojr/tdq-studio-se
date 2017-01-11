@@ -128,11 +128,6 @@ public class RunAnalysisAction extends Action implements ICheatSheetAction {
             // TDQ-11550: refresh first especially for remote project, can get the lastest item status correctly
             repositoryObjectCRUD.refreshDQViewForRemoteProject();
 
-            if (!repositoryObjectCRUD.isSelectionAvailable()) {
-                repositoryObjectCRUD.showWarningDialog();
-                return;
-            }
-
             for (TDQAnalysisItem anaItem : items) {
                 runAnalysisForItem(anaItem);
             }
