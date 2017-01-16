@@ -17,15 +17,19 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Field.TermVector;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.CheckIndex;
@@ -34,6 +38,7 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
@@ -52,7 +57,9 @@ public class IndexMigrator {
     // The provided indexes are located at "addons" folder of the studio.
     //private String inputPath = "/misc/repo-td/tdq-studio-ee/main/plugins/org.talend.dataquality.data.resources/data/synonym";//$NON-NLS-1$
 
-    private String inputPath = "/Volumes/Macintosh/repo-td/tdq-studio-ee/main/plugins/org.talend.dataquality.data.index/TalendGivenNames_index";
+    // private String inputPath =
+    // "/Volumes/Macintosh/repo-td/tdq-studio-ee/main/plugins/org.talend.dataquality.data.index/TalendGivenNames_index";
+    private String inputPath = "H:/TalendGivenNames_index";
 
     //private String inputPath = "/path/to/studio/addons/data/synonym";//$NON-NLS-1$
 
@@ -66,7 +73,7 @@ public class IndexMigrator {
 
     public static final String F_SYNTERM = "synterm";
 
-    private static final boolean IS_MIGRATING_FIRSTNAME_INDEX = true;
+    private static final boolean IS_MIGRATING_FIRSTNAME_INDEX = false;
 
     private Map<String, List<String[]>> nameMap = new HashMap<String, List<String[]>>();
 
@@ -170,25 +177,52 @@ public class IndexMigrator {
 
             IndexReader reader = DirectoryReader.open(indexDir);
             // IndexSearcher searcher = new IndexSearcher(reader);
+
             // IndexSearcher searcher = new IndexSearcher(indexDir);
 
             Document doc = null;
             // for any other indexes, regenerate with new Analyzer, but no
             // changes to document.
+            Collection<String> fieldNames = new ArrayList<String>();
+            Document newDoc = null;
             for (int i = 0; i < reader.maxDoc(); i++) {
                 doc = reader.document(i);
 
+                List<IndexableField> fields = doc.getFields();
+                for (int k = 0; k < fields.size(); k++) {
+                    fieldNames.add(fields.get(k).name());
+                }
+
                 if (IS_MIGRATING_FIRSTNAME_INDEX) {
-                    Document newDoc = generateFirstNameDoc(doc);
+                    newDoc = generateFirstNameDoc(doc);
                     if (newDoc != null) {
                         writer.addDocument(newDoc);
                     }
                 } else {
-                    writer.addDocument(doc);
+                    if (fieldNames.contains(F_WORD) && fieldNames.contains(F_SYN)) {
+                        // for "out of the box" indexes, regenerate the index with 2
+                        // extra fields ("SYNTERM" and "WORDTERM") for
+                        // better scoring.
+                        // Document oldDoc = searcher.doc(i);
+                        String word = doc.getValues(F_WORD)[0];
+                        String[] synonyms = doc.getValues(F_SYN);
+                        Set<String> synonymSet = new HashSet<String>();
+                        for (String syn : synonyms) {
+                            if (!syn.equals(word)) {
+                                synonymSet.add(syn);
+                            }
+                        }
+                        newDoc = generateDocument(word, synonymSet);
+                        writer.addDocument(newDoc);
+                    } else {
+                        writer.addDocument(doc);
+                    }
+                    // writer.addDocument(doc);
                 }
             }
             System.out.println("count: " + count);
 
+            reader.close();
             writer.commit();
             writer.close();
             outputDir.close();
@@ -203,6 +237,53 @@ public class IndexMigrator {
         }
         return 0;
     }
+
+    private Document generateDocument(String word, Set<String> synonyms) {
+        Document doc = new Document();
+        word = word.trim();
+        Field wordField = new Field(F_WORD, word, Field.Store.YES, Field.Index.ANALYZED_NO_NORMS, TermVector.NO);
+        doc.add(wordField);
+        Field wordTermField = new Field(F_WORDTERM, word.toLowerCase(), Field.Store.NO, Field.Index.NOT_ANALYZED, TermVector.NO);
+        doc.add(wordTermField);
+        for (String syn : synonyms) {
+            if (syn != null) {
+                syn = syn.trim();
+                if (syn.length() > 0 && !syn.equals(word)) {
+                    doc.add(new Field(F_SYN, syn, Field.Store.YES, Field.Index.ANALYZED_NO_NORMS, TermVector.NO));
+                    doc.add(new Field(F_SYNTERM, syn.toLowerCase(), Field.Store.NO, Field.Index.NOT_ANALYZED, TermVector.NO));
+                }
+            }
+        }
+        return doc;
+    }
+
+    // private Document generateDocument(String word, Set<String> synonyms) {
+    // String tempWord = word.trim();
+    // Document doc = new Document();
+    // FieldType ft = new FieldType();
+    // ft.setStored(true);
+    // ft.setIndexed(true);
+    // ft.setOmitNorms(true);
+    // ft.freeze();
+    //
+    // // Field wordField = new Field(SynonymIndexSearcher.F_WORD, tempWord, StringField.TYPE_STORED);
+    // Field wordField = new Field(F_WORD, tempWord, ft);
+    // doc.add(wordField);
+    // Field wordTermField = new StringField(F_WORDTERM, tempWord.toLowerCase(), Field.Store.YES);
+    // doc.add(wordTermField);
+    // for (String syn : synonyms) {
+    // if (syn != null) {
+    // syn = syn.trim();
+    // if (syn.length() > 0 && !syn.equals(tempWord)) {
+    // // doc.add(new Field(SynonymIndexSearcher.F_SYN, syn, StringField.TYPE_STORED));
+    // doc.add(new Field(F_SYN, syn, ft));
+    // doc.add(new StringField(F_SYNTERM, syn.toLowerCase(), Field.Store.YES));
+    // }
+    // }
+    // }
+    // return doc;
+    // }
+
 
     private Document generateFirstNameDoc(Document doc) {
 
