@@ -632,21 +632,25 @@ public class DQDeleteAction extends DeleteAction {
         if (tempNode != null) {
             // logcial delete dependcy element.
             if (tempNode.getObject() != null) {
-                CorePlugin.getDefault().closeEditorIfOpened(tempNode.getObject().getProperty().getItem());
-            }
-
-            // TDQ-12207 msjian: unlock the object which is locked by user only, then we will unify the logic to the same as above
-            // closeEditorIfOpened)
-            if (ProxyRepositoryFactory.getInstance().getStatus(tempNode.getObject()) == ERepositoryStatus.LOCK_BY_USER) {
-                try {
-                    ProxyRepositoryFactory.getInstance().unlock(tempNode.getObject());
-                } catch (PersistenceException e) {
-                    log.error(e, e);
-                } catch (LoginException e) {
-                    log.error(e, e);
+                // TDQ-13184 msjian: because when item is opening, when close it we will do unlock, so we make sure we do unlock
+                // only one time here(else for mode: ask user will popup twice unlock confirm when select no)
+                if (CorePlugin.getDefault().itemIsOpening(tempNode.getObject().getProperty().getItem())) {
+                    CorePlugin.getDefault().closeEditorIfOpened(tempNode.getObject().getProperty().getItem());
+                } else {
+                    // TDQ-12207 msjian: unlock the object which is locked by user only, then we will unify the logic to the same
+                    // as above closeEditorIfOpened: alway will do unlock.
+                    if (ProxyRepositoryFactory.getInstance().getStatus(tempNode.getObject()) == ERepositoryStatus.LOCK_BY_USER) {
+                        try {
+                            ProxyRepositoryFactory.getInstance().unlock(tempNode.getObject());
+                        } catch (PersistenceException e) {
+                            log.error(e, e);
+                        } catch (LoginException e) {
+                            log.error(e, e);
+                        }
+                    }
+                    // TDQ-12207~
                 }
             }
-            // TDQ-12207~
 
             // need to pass the tempNode parameter at here for logical delete dependce.
             excuteSuperRun(tempNode, tempNode.getParent());
