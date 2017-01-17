@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.dataquality.indicators.validation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.talend.cwm.indicator.DataValidation;
@@ -23,6 +24,29 @@ import org.talend.cwm.indicator.DataValidation;
 public class DataValidationImpl implements DataValidation {
 
     private boolean checkKey = false;
+
+    protected List<Object[]> resultList = null;
+
+    /**
+     * DOC zshen DataValidationImpl constructor comment.
+     * 
+     * @param checkKey
+     */
+    public DataValidationImpl() {
+        initParameter();
+    }
+
+    /**
+     * DOC zshen Comment method "initParameter".
+     */
+    protected void initParameter() {
+        if (resultList == null) {
+            resultList = new ArrayList<>();
+        } else {
+            resultList.clear();
+        }
+
+    }
 
     /*
      * (non-Javadoc)
@@ -83,8 +107,7 @@ public class DataValidationImpl implements DataValidation {
      */
     @Override
     public boolean add(Object[] element) {
-        // TODO Auto-generated method stub
-        return false;
+        return resultList.add(element);
     }
 
     /*
@@ -94,8 +117,7 @@ public class DataValidationImpl implements DataValidation {
      */
     @Override
     public List<Object[]> getResult() {
-        // TODO Auto-generated method stub
-        return null;
+        return resultList;
     }
 
 }

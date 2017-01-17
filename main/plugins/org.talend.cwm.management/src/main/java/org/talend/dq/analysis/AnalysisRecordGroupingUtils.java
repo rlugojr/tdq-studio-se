@@ -488,7 +488,7 @@ public class AnalysisRecordGroupingUtils {
                     if (surFuncsInMatcher[idx] == null) {
                         // Use CONCATENATE by default if not specified .
                         surFuncsInMatcher[idx] = survivorShipAlgorithmParams.new SurvivorshipFunction();
-                        surFuncsInMatcher[idx].setSurvivorShipAlgoEnum(SurvivorShipAlgorithmEnum.CONCATENATE);
+                        surFuncsInMatcher[idx].setSurvivorShipAlgoEnum(SurvivorShipAlgorithmEnum.MOST_COMMON);
                         // MOD TDQ-11774 set a default parameter
                         surFuncsInMatcher[idx].setParameter(SurvivorshipUtils.DEFAULT_CONCATENATE_PARAMETER);
                     }

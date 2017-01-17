@@ -105,12 +105,12 @@ public class ColumnSetDBMap extends DBMap<List<Object>, Long> {
     @Override
     public List<Object[]> subList(long fromIndex, long toIndex, Map<Long, List<Object>> indexMap, DataValidation dataValiator) {
         if (dataValiator == null) {
-            return subList(fromIndex, toIndex, indexMap, dataValiator);
+            return subList(fromIndex, toIndex, indexMap);
         }
         boolean stratToRecord = false;
-        List<Object[]> returnList = new ArrayList<Object[]>();
+
         if (!checkIndex(fromIndex, toIndex)) {
-            return returnList;
+            return dataValiator.getResult();
         }
         List<Object> fromKey = null;
         List<Object> toKey = null;
@@ -131,6 +131,7 @@ public class ColumnSetDBMap extends DBMap<List<Object>, Long> {
             iterator = tailSet.iterator();
             index = fromIndex;
         }
+        boolean success = true;
 
         while (iterator.hasNext()) {
             List<Object> next = iterator.next();
@@ -149,18 +150,19 @@ public class ColumnSetDBMap extends DBMap<List<Object>, Long> {
                 }
                 break;
             }
-            if (stratToRecord == true) {
+            if (dataValiator.isWork() || stratToRecord == true) {
                 Object arrayElement[] = new Object[next.size() + 1];
                 for (int i = 0; i < next.size(); i++) {
                     arrayElement[i] = next.get(i);
                 }
                 Long value = this.get(next);
                 arrayElement[next.size()] = (value == null ? "" : value.toString()); //$NON-NLS-1$
-                dataValiator.add(arrayElement);
-
+                success = dataValiator.add(arrayElement);
             }
             // what time should do this need to think
-            index++;
+            if (!dataValiator.isWork() || stratToRecord == true && success) {
+                index++;
+            }
 
         }
 
