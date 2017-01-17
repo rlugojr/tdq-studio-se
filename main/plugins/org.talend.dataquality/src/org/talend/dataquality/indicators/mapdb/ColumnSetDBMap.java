@@ -163,7 +163,6 @@ public class ColumnSetDBMap extends DBMap<List<Object>, Long> {
             if (!dataValiator.isWork() || stratToRecord == true && success) {
                 index++;
             }
-
         }
 
         return dataValiator.getResult();
