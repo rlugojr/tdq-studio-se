@@ -1243,6 +1243,12 @@
            id="org.talend.dataprofiler.core.ui.pref.SetJDBCDriverPreferencePage"
            name="%page.name.SetJdbcPreferencePage">
      </page>
+     <page
+           category="org.talend.dataprofiler.core.ui.pref.DataProfilerPreferencePage"
+           class="org.talend.dataprofiler.core.ui.pref.IndicatorSettingsPage"
+           id="org.talend.dataprofiler.core.ui.pref.IndicatorSettingsPage"
+           name="%page.name.IndicatorPreferencePage">
+     </page>
   </extension>
   <extension
         point="org.talend.dataprofiler.migration">
