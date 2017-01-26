@@ -735,7 +735,7 @@
       <eStructuralFeatures xsi:type="ecore:EAttribute" name="valueToDistinctFreq"
           eType="#//indicators/JavaHashMap"/>
     </eClassifiers>
-    <eClassifiers xsi:type="ecore:EClass" name="SoundexLowFreqIndicator" eSuperTypes="#//indicators/SoundexFreqIndicator"/>
+    <eClassifiers xsi:type="ecore:EClass" name="SoundexLowFreqIndicator" eSuperTypes="#//indicators/SoundexFreqIndicator #//indicators/LowFrequencyIndicator"/>
     <eClassifiers xsi:type="ecore:EClass" name="DatePatternFreqIndicator" eSuperTypes="#//indicators/FrequencyIndicator"/>
     <eClassifiers xsi:type="ecore:EClass" name="DateFrequencyIndicator" eSuperTypes="#//indicators/FrequencyIndicator"/>
     <eClassifiers xsi:type="ecore:EClass" name="WeekFrequencyIndicator" eSuperTypes="#//indicators/FrequencyIndicator"/>

@@ -204,6 +204,8 @@ public class IndicatorSettingsPage extends PreferencePage implements IWorkbenchP
                 isLowCase ? lowFreResultLimit : 0);
         CheckedTreeSelectionDialog checkedTreeSelectionDialog = new CheckedTreeSelectionDialog(this.getShell(),
                 new DQRepositoryViewLabelProviderWithFilter(limitFilter), new ResourceViewContentProvider());
+        checkedTreeSelectionDialog.setTitle("andlysis selected"); //$NON-NLS-1$
+        checkedTreeSelectionDialog.setMessage("Any analysis which limit result is same with current value will be hide"); //$NON-NLS-1$
         checkedTreeSelectionDialog.setContainerMode(true);
         checkedTreeSelectionDialog.addFilter(new SelectAnalysisDialogNodeFilter());
         checkedTreeSelectionDialog.addFilter(limitFilter);

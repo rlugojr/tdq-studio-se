@@ -2709,6 +2709,7 @@ public class IndicatorsPackageImpl extends EPackageImpl implements IndicatorsPac
         defValueCountIndicatorEClass.getESuperTypes().add(this.getIndicator());
         soundexFreqIndicatorEClass.getESuperTypes().add(this.getFrequencyIndicator());
         soundexLowFreqIndicatorEClass.getESuperTypes().add(this.getSoundexFreqIndicator());
+        soundexLowFreqIndicatorEClass.getESuperTypes().add(this.getLowFrequencyIndicator());
         datePatternFreqIndicatorEClass.getESuperTypes().add(this.getFrequencyIndicator());
         dateFrequencyIndicatorEClass.getESuperTypes().add(this.getFrequencyIndicator());
         weekFrequencyIndicatorEClass.getESuperTypes().add(this.getFrequencyIndicator());

@@ -31,7 +31,6 @@ public class BenfordLawFrequencyIndicatorImpl extends FrequencyIndicatorImpl imp
 
     /**
      * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
      * @generated
      */
     protected BenfordLawFrequencyIndicatorImpl() {
@@ -120,7 +119,6 @@ public class BenfordLawFrequencyIndicatorImpl extends FrequencyIndicatorImpl imp
 
     /**
      * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
      * @generated
      */
     @Override

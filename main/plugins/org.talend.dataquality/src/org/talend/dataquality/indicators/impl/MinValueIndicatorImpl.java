@@ -26,7 +26,6 @@ public class MinValueIndicatorImpl extends ValueIndicatorImpl implements MinValu
 
     /**
      * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
      * @generated
      */
     protected MinValueIndicatorImpl() {
@@ -35,7 +34,6 @@ public class MinValueIndicatorImpl extends ValueIndicatorImpl implements MinValu
 
     /**
      * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
      * @generated
      */
     @Override

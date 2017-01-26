@@ -26,7 +26,6 @@ public class MaxValueIndicatorImpl extends ValueIndicatorImpl implements MaxValu
 
     /**
      * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
      * @generated
      */
     protected MaxValueIndicatorImpl() {
@@ -35,7 +34,6 @@ public class MaxValueIndicatorImpl extends ValueIndicatorImpl implements MaxValu
 
     /**
      * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
      * @generated
      */
     @Override

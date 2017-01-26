@@ -632,6 +632,7 @@ public class IndicatorsSwitch<T> {
                 SoundexLowFreqIndicator soundexLowFreqIndicator = (SoundexLowFreqIndicator)theEObject;
                 T result = caseSoundexLowFreqIndicator(soundexLowFreqIndicator);
                 if (result == null) result = caseSoundexFreqIndicator(soundexLowFreqIndicator);
+                if (result == null) result = caseLowFrequencyIndicator(soundexLowFreqIndicator);
                 if (result == null) result = caseFrequencyIndicator(soundexLowFreqIndicator);
                 if (result == null) result = caseIndicator(soundexLowFreqIndicator);
                 if (result == null) result = caseModelElement(soundexLowFreqIndicator);

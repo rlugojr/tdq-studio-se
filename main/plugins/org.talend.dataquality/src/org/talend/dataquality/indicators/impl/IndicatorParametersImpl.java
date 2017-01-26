@@ -14,9 +14,12 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
 import org.talend.dataquality.domain.Domain;
 import org.talend.dataquality.indicators.DateGrain;
 import org.talend.dataquality.indicators.DateParameters;
+import org.talend.dataquality.indicators.FrequencyIndicator;
 import org.talend.dataquality.indicators.IndicatorParameters;
 import org.talend.dataquality.indicators.IndicatorsPackage;
+import org.talend.dataquality.indicators.LowFrequencyIndicator;
 import org.talend.dataquality.indicators.TextParameters;
+import org.talend.dataquality.service.IndicatorDefaultValueServiceUtil;
 
 /**
  * <!-- begin-user-doc --> An implementation of the model object '<em><b>Indicator Parameters</b></em>'. <!--
@@ -137,6 +140,7 @@ public class IndicatorParametersImpl extends EObjectImpl implements IndicatorPar
      * <!-- begin-user-doc --> <!-- end-user-doc -->
      * @generated
      */
+    @Override
     public Domain getIndicatorValidDomain() {
         return indicatorValidDomain;
     }
@@ -159,6 +163,7 @@ public class IndicatorParametersImpl extends EObjectImpl implements IndicatorPar
      * <!-- begin-user-doc --> <!-- end-user-doc -->
      * @generated
      */
+    @Override
     public void setIndicatorValidDomain(Domain newIndicatorValidDomain) {
         if (newIndicatorValidDomain != indicatorValidDomain) {
             NotificationChain msgs = null;
@@ -177,6 +182,7 @@ public class IndicatorParametersImpl extends EObjectImpl implements IndicatorPar
      * <!-- begin-user-doc --> <!-- end-user-doc -->
      * @generated
      */
+    @Override
     public Domain getDataValidDomain() {
         return dataValidDomain;
     }
@@ -199,6 +205,7 @@ public class IndicatorParametersImpl extends EObjectImpl implements IndicatorPar
      * <!-- begin-user-doc --> <!-- end-user-doc -->
      * @generated
      */
+    @Override
     public void setDataValidDomain(Domain newDataValidDomain) {
         if (newDataValidDomain != dataValidDomain) {
             NotificationChain msgs = null;
@@ -217,6 +224,7 @@ public class IndicatorParametersImpl extends EObjectImpl implements IndicatorPar
      * <!-- begin-user-doc --> <!-- end-user-doc -->
      * @generated
      */
+    @Override
     public Domain getBins() {
         return bins;
     }
@@ -239,6 +247,7 @@ public class IndicatorParametersImpl extends EObjectImpl implements IndicatorPar
      * <!-- begin-user-doc --> <!-- end-user-doc -->
      * @generated
      */
+    @Override
     public void setBins(Domain newBins) {
         if (newBins != bins) {
             NotificationChain msgs = null;
@@ -257,6 +266,7 @@ public class IndicatorParametersImpl extends EObjectImpl implements IndicatorPar
      * <!-- begin-user-doc --> <!-- end-user-doc -->
      * @generated
      */
+    @Override
     public TextParameters getTextParameter() {
         return textParameter;
     }
@@ -279,6 +289,7 @@ public class IndicatorParametersImpl extends EObjectImpl implements IndicatorPar
      * <!-- begin-user-doc --> <!-- end-user-doc -->
      * @generated
      */
+    @Override
     public void setTextParameter(TextParameters newTextParameter) {
         if (newTextParameter != textParameter) {
             NotificationChain msgs = null;
@@ -298,6 +309,7 @@ public class IndicatorParametersImpl extends EObjectImpl implements IndicatorPar
      * <!-- end-user-doc -->
      * @generated
      */
+    @Override
     public DateParameters getDateParameters() {
         return dateParameters;
     }
@@ -322,6 +334,7 @@ public class IndicatorParametersImpl extends EObjectImpl implements IndicatorPar
      * <!-- end-user-doc -->
      * @generated
      */
+    @Override
     public void setDateParameters(DateParameters newDateParameters) {
         if (newDateParameters != dateParameters) {
             NotificationChain msgs = null;
@@ -341,6 +354,7 @@ public class IndicatorParametersImpl extends EObjectImpl implements IndicatorPar
      * <!-- end-user-doc -->
      * @generated
      */
+    @Override
     public int getTopN() {
         return topN;
     }
@@ -350,6 +364,7 @@ public class IndicatorParametersImpl extends EObjectImpl implements IndicatorPar
      * <!-- end-user-doc -->
      * @generated
      */
+    @Override
     public void setTopN(int newTopN) {
         int oldTopN = topN;
         topN = newTopN;
@@ -497,6 +512,23 @@ public class IndicatorParametersImpl extends EObjectImpl implements IndicatorPar
         result.append(topN);
         result.append(')');
         return result.toString();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.emf.ecore.impl.EObjectImpl#eBasicSetContainer(org.eclipse.emf.ecore.InternalEObject, int)
+     */
+    @Override
+    protected void eBasicSetContainer(InternalEObject newContainer, int newContainerFeatureID) {
+        super.eBasicSetContainer(newContainer, newContainerFeatureID);
+        if (newContainer instanceof FrequencyIndicator) {
+            if (newContainer instanceof LowFrequencyIndicator) {
+                this.setTopN(IndicatorDefaultValueServiceUtil.getIstance().getIndicatorDVService().getLowFrequencyLimitResult());
+            } else {
+                this.setTopN(IndicatorDefaultValueServiceUtil.getIstance().getIndicatorDVService().getFrequencyLimitResult());
+            }
+        }
     }
 
 } // IndicatorParametersImpl
