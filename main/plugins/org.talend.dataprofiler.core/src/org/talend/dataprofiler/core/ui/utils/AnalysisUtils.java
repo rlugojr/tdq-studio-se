@@ -265,6 +265,22 @@ public class AnalysisUtils {
     }
 
     /**
+     * get Analysis Select Dialog Input Data.
+     * 
+     * @param eResourceConstant
+     * @return
+     */
+    public static DQRepositoryNode getAnalysisSelectDialogInputDataWithoutRef(EResourceConstant eResourceConstant) {
+        DQRepositoryNode node = new DQRepositoryNode(null, null, ENodeType.SYSTEM_FOLDER, ProjectManager.getInstance()
+                .getCurrentProject());
+        node.getChildren().clear();
+
+        IRepositoryNode analysisFolderNode = RepositoryNodeHelper.getDataProfilingFolderNode(eResourceConstant);
+        node.getChildren().add(analysisFolderNode);
+        return node;
+    }
+
+    /**
      * get Select Dialog Input Data.
      * 
      * @param eResourceConstant: for select UDI dialog is EResourceConstant.USER_DEFINED_INDICATORS

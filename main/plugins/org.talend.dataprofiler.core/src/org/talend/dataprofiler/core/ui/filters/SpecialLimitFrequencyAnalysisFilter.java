@@ -14,6 +14,7 @@ package org.talend.dataprofiler.core.ui.filters;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
+import org.talend.commons.runtime.model.repository.ERepositoryStatus;
 import org.talend.dataquality.analysis.Analysis;
 import org.talend.dataquality.indicators.FrequencyIndicator;
 import org.talend.dataquality.indicators.Indicator;
@@ -42,11 +43,10 @@ public class SpecialLimitFrequencyAnalysisFilter extends ViewerFilter {
      */
     @Override
     public boolean select(Viewer viewer, Object parentElement, Object element) {
-        // if (element instanceof AnalysisSubFolderRepNode) {
-        // need consisder to hide subFolder when no analysis or subfolder show
-        //
-        // }
         if (element instanceof AnalysisRepNode) {
+            if (ERepositoryStatus.isLock(((AnalysisRepNode) element).getObject().getRepositoryStatus())) {
+                return false;
+            }
             return isNotDefaultLimitAnaNode((AnalysisRepNode) element);
         }
 

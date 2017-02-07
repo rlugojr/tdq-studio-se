@@ -1,7 +1,9 @@
 package org.talend.dataprofiler.core.ui.pref;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
@@ -22,8 +24,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.dialogs.CheckedTreeSelectionDialog;
-import org.talend.commons.emf.EMFUtil;
 import org.talend.dataprofiler.core.CorePlugin;
+import org.talend.dataprofiler.core.i18n.internal.DefaultMessagesImpl;
 import org.talend.dataprofiler.core.ui.filters.SelectAnalysisDialogNodeFilter;
 import org.talend.dataprofiler.core.ui.filters.SpecialLimitFrequencyAnalysisFilter;
 import org.talend.dataprofiler.core.ui.utils.AnalysisUtils;
@@ -35,19 +37,24 @@ import org.talend.dataquality.analysis.Analysis;
 import org.talend.dataquality.indicators.FrequencyIndicator;
 import org.talend.dataquality.indicators.Indicator;
 import org.talend.dataquality.indicators.LowFrequencyIndicator;
+import org.talend.dataquality.properties.TDQAnalysisItem;
 import org.talend.dq.nodes.AnalysisRepNode;
 import org.talend.dq.nodes.DQRepositoryNode;
+import org.talend.dq.writer.impl.AnalysisWriter;
+import org.talend.dq.writer.impl.ElementWriterFactory;
 import org.talend.resource.EResourceConstant;
 
 public class IndicatorSettingsPage extends PreferencePage implements IWorkbenchPreferencePage {
 
-    public static final String FREQUENCY_TABLE_RESULT_LIMIT_KEY = "org.talend.dataprofiler.core.ui.pref.FrequencyResultLimit";
+    public static final String FREQUENCY_TABLE_RESULT_LIMIT_KEY = "org.talend.dataprofiler.core.ui.pref.FrequencyResultLimit"; //$NON-NLS-1$
 
-    public static final String LOW_FREQUENCY_TABLE_RESULT_LIMIT_KEY = "org.talend.dataprofiler.core.ui.pref.LowFrequencyResultLimit";
+    public static final String LOW_FREQUENCY_TABLE_RESULT_LIMIT_KEY = "org.talend.dataprofiler.core.ui.pref.LowFrequencyResultLimit"; //$NON-NLS-1$
 
     private int freResultLimit = 10;
 
     private int lowFreResultLimit = 10;
+
+    private Map<Text, String> errorMessageMap = new HashMap<Text, String>();
 
     public IndicatorSettingsPage() {
     }
@@ -81,50 +88,24 @@ public class IndicatorSettingsPage extends PreferencePage implements IWorkbenchP
         mainComposite.setLayout(gridLayout);
 
         Group frequenceGroup = new Group(mainComposite, SWT.NONE);
-        frequenceGroup.setText("Frequency Table"); //$NON-NLS-1$
+        frequenceGroup.setText(DefaultMessagesImpl.getString("IndicatorSettingsPage.frequencyTable.groupName")); //$NON-NLS-1$
         GridData data = new GridData(SWT.FILL, SWT.CENTER, true, false);
         gridLayout = new GridLayout(3, false);
         frequenceGroup.setLayoutData(data);
         frequenceGroup.setLayout(gridLayout);
 
         Label frequenceLabel = new Label(frequenceGroup, SWT.NONE);
-        frequenceLabel.setText("Number of result shown"); //$NON-NLS-1$
+        frequenceLabel.setText(DefaultMessagesImpl.getString("IndicatorSettingsPage.frequency.limit")); //$NON-NLS-1$
         data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 2, 1);
         frequenceLabel.setLayoutData(data);
 
         final Text frequenceText = new Text(frequenceGroup, SWT.BORDER);
-        frequenceText.setText("" + freResultLimit); //$NON-NLS-1$
+        frequenceText.setText(StringUtils.EMPTY + freResultLimit);
         data = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
         frequenceText.setLayoutData(data);
-        frequenceText.addModifyListener(new ModifyListener() {
 
-            public void modifyText(ModifyEvent e) {
-                if (frequenceText.getText().equals(StringUtils.EMPTY)) {
-                    IndicatorSettingsPage.this.setErrorMessage(UIMessages.MSG_EMPTY_FIELD);
-                    IndicatorSettingsPage.this.setValid(false);
-                    IndicatorSettingsPage.this.updateApplyButton();
-                    return;
-                }
-
-                if (!CheckValueUtils.isNumberOfShownValue(frequenceText.getText())) {
-                    IndicatorSettingsPage.this.setErrorMessage(UIMessages.MSG_ONLY_NUMBER);
-                    IndicatorSettingsPage.this.setValid(false);
-                    IndicatorSettingsPage.this.updateApplyButton();
-                    return;
-                }
-                if (IndicatorSettingsPage.this.getErrorMessage() != null) {
-                    IndicatorSettingsPage.this.setErrorMessage(null);
-                    IndicatorSettingsPage.this.setValid(true);
-                    IndicatorSettingsPage.this.updateApplyButton();
-                }
-                freResultLimit = Integer.valueOf(frequenceText.getText());
-
-            }
-
-        });
-
-        Button frequenceButton = new Button(frequenceGroup, SWT.PUSH);
-        frequenceButton.setText("Apple to others"); //$NON-NLS-1$
+        final Button frequenceButton = new Button(frequenceGroup, SWT.PUSH);
+        frequenceButton.setText(DefaultMessagesImpl.getString("IndicatorSettingsPage.frequency.apple.button")); //$NON-NLS-1$
         data = new GridData(SWT.END, SWT.CENTER, true, false, 3, 1);
         frequenceButton.setLayoutData(data);
         frequenceButton.addMouseListener(new MouseAdapter() {
@@ -135,53 +116,37 @@ public class IndicatorSettingsPage extends PreferencePage implements IWorkbenchP
 
             }
         });
+        frequenceText.addModifyListener(new ModifyListener() {
+
+            public void modifyText(ModifyEvent e) {
+                boolean frequencyLimitChangeAction = frequencyLimitChangeAction(frequenceText, frequenceButton);
+                if (frequencyLimitChangeAction) {
+                    freResultLimit = Integer.valueOf(frequenceText.getText());
+                }
+
+            }
+
+        });
 
         Group lowFrequenceGroup = new Group(mainComposite, SWT.NONE);
-        lowFrequenceGroup.setText("Low frequency table"); //$NON-NLS-1$
+        lowFrequenceGroup.setText(DefaultMessagesImpl.getString("IndicatorSettingsPage.lowFrequencyTable.groupName")); //$NON-NLS-1$
         data = new GridData(SWT.FILL, SWT.CENTER, true, false);
         gridLayout = new GridLayout(2, false);
         lowFrequenceGroup.setLayoutData(data);
         lowFrequenceGroup.setLayout(gridLayout);
 
         Label lowFrequenceLabel = new Label(lowFrequenceGroup, SWT.NONE);
-        lowFrequenceLabel.setText("Number of result shown"); //$NON-NLS-1$
+        lowFrequenceLabel.setText(DefaultMessagesImpl.getString("IndicatorSettingsPage.frequency.limit")); //$NON-NLS-1$
         data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 1, 1);
         lowFrequenceLabel.setLayoutData(data);
 
         final Text lowFrequenceText = new Text(lowFrequenceGroup, SWT.BORDER);
-        lowFrequenceText.setText("" + lowFreResultLimit); //$NON-NLS-1$
+        lowFrequenceText.setText(StringUtils.EMPTY + lowFreResultLimit);
         data = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
         lowFrequenceText.setLayoutData(data);
 
-        lowFrequenceText.addModifyListener(new ModifyListener() {
-
-            public void modifyText(ModifyEvent e) {
-                if (lowFrequenceText.getText().equals(StringUtils.EMPTY)) {
-                    IndicatorSettingsPage.this.setErrorMessage(UIMessages.MSG_EMPTY_FIELD);
-                    IndicatorSettingsPage.this.setValid(false);
-                    IndicatorSettingsPage.this.updateApplyButton();
-                    return;
-                }
-
-                if (!CheckValueUtils.isNumberOfShownValue(lowFrequenceText.getText())) {
-                    IndicatorSettingsPage.this.setErrorMessage(UIMessages.MSG_ONLY_NUMBER);
-                    IndicatorSettingsPage.this.setValid(false);
-                    IndicatorSettingsPage.this.updateApplyButton();
-                    return;
-                }
-                if (IndicatorSettingsPage.this.getErrorMessage() != null) {
-                    IndicatorSettingsPage.this.setErrorMessage(null);
-                    IndicatorSettingsPage.this.setValid(true);
-                    IndicatorSettingsPage.this.updateApplyButton();
-                }
-                lowFreResultLimit = Integer.valueOf(lowFrequenceText.getText());
-
-            }
-
-        });
-
-        Button lowFrequenceButton = new Button(lowFrequenceGroup, SWT.PUSH);
-        lowFrequenceButton.setText("Apple to others"); //$NON-NLS-1$
+        final Button lowFrequenceButton = new Button(lowFrequenceGroup, SWT.PUSH);
+        lowFrequenceButton.setText(DefaultMessagesImpl.getString("IndicatorSettingsPage.frequency.apple.button")); //$NON-NLS-1$
         data = new GridData(SWT.END, SWT.CENTER, true, false, 2, 1);
         lowFrequenceButton.setLayoutData(data);
         lowFrequenceButton.addMouseListener(new MouseAdapter() {
@@ -192,8 +157,52 @@ public class IndicatorSettingsPage extends PreferencePage implements IWorkbenchP
 
             }
         });
+        lowFrequenceText.addModifyListener(new ModifyListener() {
+
+            public void modifyText(ModifyEvent e) {
+                boolean frequencyLimitChangeAction = frequencyLimitChangeAction(lowFrequenceText, lowFrequenceButton);
+                if (frequencyLimitChangeAction) {
+                    lowFreResultLimit = Integer.valueOf(lowFrequenceText.getText());
+                }
+
+            }
+
+        });
         return mainComposite;
 
+    }
+
+    /**
+     * DOC zshen Comment method "frequencyLimitChangeAction".
+     * 
+     * @param frequenceText
+     */
+    private boolean frequencyLimitChangeAction(final Text frequenceText, Button analysisApplyButton) {
+        if (frequenceText.getText().equals(StringUtils.EMPTY)) {
+            IndicatorSettingsPage.this.setErrorMessage(UIMessages.MSG_EMPTY_FIELD);
+            IndicatorSettingsPage.this.setValid(false);
+            IndicatorSettingsPage.this.updateApplyButton();
+            errorMessageMap.put(frequenceText, UIMessages.MSG_EMPTY_FIELD);
+            analysisApplyButton.setEnabled(false);
+            return false;
+        }
+
+        if (!CheckValueUtils.isNumberOfShownValue(frequenceText.getText())) {
+            IndicatorSettingsPage.this.setErrorMessage(UIMessages.MSG_ONLY_NUMBER);
+            IndicatorSettingsPage.this.setValid(false);
+            IndicatorSettingsPage.this.updateApplyButton();
+            errorMessageMap.put(frequenceText, UIMessages.MSG_ONLY_NUMBER);
+            analysisApplyButton.setEnabled(false);
+            return false;
+        }
+        errorMessageMap.remove(frequenceText);
+        analysisApplyButton.setEnabled(true);
+        if (errorMessageMap.isEmpty()) {
+            IndicatorSettingsPage.this.setErrorMessage(null);
+            IndicatorSettingsPage.this.setValid(true);
+            IndicatorSettingsPage.this.updateApplyButton();
+        }
+        return true;
     }
 
     /**
@@ -204,13 +213,14 @@ public class IndicatorSettingsPage extends PreferencePage implements IWorkbenchP
                 isLowCase ? lowFreResultLimit : 0);
         CheckedTreeSelectionDialog checkedTreeSelectionDialog = new CheckedTreeSelectionDialog(this.getShell(),
                 new DQRepositoryViewLabelProviderWithFilter(limitFilter), new ResourceViewContentProvider());
-        checkedTreeSelectionDialog.setTitle("andlysis selected"); //$NON-NLS-1$
-        checkedTreeSelectionDialog.setMessage("Any analysis which limit result is same with current value will be hide"); //$NON-NLS-1$
+        checkedTreeSelectionDialog.setTitle(DefaultMessagesImpl.getString("IndicatorSettingsPage.analysisSelectDialog.title")); //$NON-NLS-1$
+        checkedTreeSelectionDialog
+                .setMessage(DefaultMessagesImpl.getString("IndicatorSettingsPage.analysisSelectDialog.message")); //$NON-NLS-1$
         checkedTreeSelectionDialog.setContainerMode(true);
         checkedTreeSelectionDialog.addFilter(new SelectAnalysisDialogNodeFilter());
         checkedTreeSelectionDialog.addFilter(limitFilter);
         DQRepositoryNode analysisSelectDialogInputData = AnalysisUtils
-                .getAnalysisSelectDialogInputData(EResourceConstant.ANALYSIS);
+                .getAnalysisSelectDialogInputDataWithoutRef(EResourceConstant.ANALYSIS);
         checkedTreeSelectionDialog.setInput(analysisSelectDialogInputData);
         if (checkedTreeSelectionDialog.open() == Dialog.OK) {
             Object[] result = checkedTreeSelectionDialog.getResult();
@@ -241,8 +251,11 @@ public class IndicatorSettingsPage extends PreferencePage implements IWorkbenchP
                 modifyFre(indicator);
             }
         }
-        Resource resource = analysis.eResource();
-        EMFUtil.saveSingleResource(resource);
+        AnalysisWriter anaWriter = ElementWriterFactory.getInstance().createAnalysisWrite();
+        anaWriter.save(anaNode.getObject().getProperty().getItem(), false);
+        ((TDQAnalysisItem) anaNode.getObject().getProperty().getItem()).setAnalysis(analysis);
+        // Resource resource = analysis.eResource();
+        // EMFUtil.saveSingleResource(resource);
 
     }
 
