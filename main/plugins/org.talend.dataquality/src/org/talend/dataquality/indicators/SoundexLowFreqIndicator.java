@@ -6,7 +6,6 @@
  */
 package org.talend.dataquality.indicators;
 
-
 /**
  * <!-- begin-user-doc -->
  * A representation of the model object '<em><b>Soundex Low Freq Indicator</b></em>'.
@@ -17,5 +16,5 @@ package org.talend.dataquality.indicators;
  * @model
  * @generated
  */
-public interface SoundexLowFreqIndicator extends SoundexFreqIndicator {
+public interface SoundexLowFreqIndicator extends SoundexFreqIndicator, LowFrequencyIndicator {
 } // SoundexLowFreqIndicator

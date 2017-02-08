@@ -20,7 +20,6 @@ public class EastAsiaPatternFreqIndicatorImpl extends PatternFreqIndicatorImpl i
 
     /**
      * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
      * @generated
      */
     protected EastAsiaPatternFreqIndicatorImpl() {
@@ -29,7 +28,6 @@ public class EastAsiaPatternFreqIndicatorImpl extends PatternFreqIndicatorImpl i
 
     /**
      * <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
      * @generated
      */
     @Override

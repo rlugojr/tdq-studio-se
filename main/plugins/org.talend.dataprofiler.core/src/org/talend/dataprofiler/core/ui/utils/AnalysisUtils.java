@@ -21,7 +21,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.talend.commons.emf.FactoriesUtil;
 import org.talend.core.model.general.Project;
-import org.talend.dataprofiler.common.ui.editor.preview.CustomerDefaultCategoryDataset;
 import org.talend.dataprofiler.core.model.dynamic.DynamicIndicatorModel;
 import org.talend.dataprofiler.core.ui.editor.preview.model.dataset.CustomerDefaultBAWDataset;
 import org.talend.dataprofiler.core.ui.editor.preview.model.states.SummaryStatisticsState;
@@ -95,7 +94,7 @@ public class AnalysisUtils {
             eReceiver = new BenfordFrequencyDynamicChartEventReceiver();
             ((BenfordFrequencyDynamicChartEventReceiver) eReceiver).setSecondDataset(indicatorModel.getSecondDataset());
         } else if (isFrequency(indicatorModel.getChartType())) {
-            //TDQ-12870, should clear the last result 
+            // TDQ-12870, should clear the last result
             oneIndicator.setCount(0l);
             eReceiver = new FrequencyDynamicChartEventReceiver();
         } else if (isPattern(indicatorModel.getChartType())) {
@@ -253,15 +252,31 @@ public class AnalysisUtils {
                 .getCurrentProject());
         node.getChildren().clear();
         if (ProxyRepositoryManager.getInstance().isMergeRefProject()) {
-            IRepositoryNode librariesFolderNode = RepositoryNodeHelper.getDataProfilingFolderNode(eResourceConstant);
-            node.getChildren().add(librariesFolderNode);
+            IRepositoryNode analysisFolderNode = RepositoryNodeHelper.getDataProfilingFolderNode(eResourceConstant);
+            node.getChildren().add(analysisFolderNode);
         } else {
             java.util.Set<Project> allProjects = ProxyRepositoryManager.getInstance().getAllProjects();
             for (Project project : allProjects) {
-                IRepositoryNode librariesFolderNode = RepositoryNodeHelper.getDataProfilingFolderNode(eResourceConstant, project);
-                node.getChildren().add(librariesFolderNode);
+                IRepositoryNode analysisFolderNode = RepositoryNodeHelper.getDataProfilingFolderNode(eResourceConstant, project);
+                node.getChildren().add(analysisFolderNode);
             }
         }
+        return node;
+    }
+
+    /**
+     * get Analysis Select Dialog Input Data.
+     * 
+     * @param eResourceConstant
+     * @return
+     */
+    public static DQRepositoryNode getAnalysisSelectDialogInputDataWithoutRef(EResourceConstant eResourceConstant) {
+        DQRepositoryNode node = new DQRepositoryNode(null, null, ENodeType.SYSTEM_FOLDER, ProjectManager.getInstance()
+                .getCurrentProject());
+        node.getChildren().clear();
+
+        IRepositoryNode analysisFolderNode = RepositoryNodeHelper.getDataProfilingFolderNode(eResourceConstant);
+        node.getChildren().add(analysisFolderNode);
         return node;
     }
 
